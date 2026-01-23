@@ -1,4 +1,4 @@
-# nf-core/swgsrelate: Citations
+# nf-core/genomicrelatedness: Citations
 
 ## [Method](https://doi.org/10.1534/genetics.116.187492)
 

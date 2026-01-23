@@ -7,7 +7,7 @@ include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_swgsrelate_pipeline'
+include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_genomicrelatedness_pipeline'
 
 include { BCFTOOLS_INDEX                                   } from '../modules/nf-core/bcftools/index/main'
 include { ANGSD_NGSRELATE                                  } from '../modules/local/angsd/ngsrelate/main'
@@ -287,7 +287,7 @@ workflow SWGSRELATE {
         .mix(topic_versions_string)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
-            name: 'nf_core_'  +  'swgsrelate_software_'  + 'mqc_'  + 'versions.yml',
+            name: 'nf_core_'  +  'genomicrelatedness_software_'  + 'mqc_'  + 'versions.yml',
             sort: true,
             newLine: true
         ).set { ch_collated_versions }

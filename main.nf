@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    nf-core/swgsrelate
+    nf-core/genomicrelatedness
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/nf-core/swgsrelate
-    Website: https://nf-co.re/swgsrelate
-    Slack  : https://nfcore.slack.com/channels/swgsrelate
+    Github : https://github.com/nf-core/genomicrelatedness
+    Website: https://nf-co.re/genomicrelatedness
+    Slack  : https://nfcore.slack.com/channels/genomicrelatedness
 ----------------------------------------------------------------------------------------
 */
 
@@ -15,10 +15,10 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_swgsrelate_pipeline'
-include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_swgsrelate_pipeline'
+include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_genomicrelatedness_pipeline'
+include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_genomicrelatedness_pipeline'
 
-include { SWGSRELATE              } from './workflows/swgsrelate'
+include { SWGSRELATE              } from './workflows/genomicrelatedness'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
