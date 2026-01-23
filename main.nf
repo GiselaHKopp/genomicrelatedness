@@ -18,7 +18,7 @@
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_genomicrelatedness_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_genomicrelatedness_pipeline'
 
-include { SWGSRELATE              } from './workflows/genomicrelatedness'
+include { GENOMICRELATEDNESS      } from './workflows/genomicrelatedness'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,7 +29,7 @@ include { SWGSRELATE              } from './workflows/genomicrelatedness'
 //
 // WORKFLOW: Run main analysis pipeline depending on type of input
 //
-workflow NFCORE_SWGSRELATE {
+workflow NFCORE_GENOMICRELATEDNESS {
 
     take:
     samplesheet // channel: samplesheet read in from --input
@@ -38,11 +38,11 @@ workflow NFCORE_SWGSRELATE {
     //
     // WORKFLOW: Run pipeline
     //
-    SWGSRELATE (
+    GENOMICRELATEDNESS (
         samplesheet
     )
     emit:
-    multiqc_report = SWGSRELATE.out.multiqc_report // channel: /path/to/multiqc_report.html
+    multiqc_report = GENOMICRELATEDNESS.out.multiqc_report // channel: /path/to/multiqc_report.html
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,7 +71,7 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    NFCORE_SWGSRELATE (
+    NFCORE_GENOMICRELATEDNESS (
         PIPELINE_INITIALISATION.out.samplesheet
     )
     //
@@ -84,7 +84,7 @@ workflow {
         params.outdir,
         params.monochrome_logs,
         params.hook_url,
-        NFCORE_SWGSRELATE.out.multiqc_report
+        NFCORE_GENOMICRELATEDNESS.out.multiqc_report
     )
 }
 

@@ -33,7 +33,7 @@ include { VCF_INTERSECTION_THINNING                        } from '../subworkflo
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow SWGSRELATE {
+workflow GENOMICRELATEDNESS {
 
     take:
     samplesheet // channel: [ meta, list(fastq) ]
@@ -336,7 +336,6 @@ workflow SWGSRELATE {
     emit:
     multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
-
 }
 
 /*
