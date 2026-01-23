@@ -6,7 +6,7 @@ template:
   description: A workflow for sWGS genotype likelihood calling and relatedness estimation
   force: false
   is_nfcore: true
-  name: swgsrelate
+  name: genomicrelatedness
   org: nf-core
   outdir: .
   skip_features:

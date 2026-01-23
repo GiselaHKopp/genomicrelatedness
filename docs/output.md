@@ -1,4 +1,4 @@
-# nf-core/swgsrelate: Output
+# nf-core/genomicrelatedness: Output
 
 ## Introduction
 

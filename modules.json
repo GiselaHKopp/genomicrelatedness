@@ -1,6 +1,6 @@
 {
-    "name": "nf-core/swgsrelate",
-    "homePage": "https://github.com/nf-core/swgsrelate",
+    "name": "nf-core/genomicrelatedness",
+    "homePage": "https://github.com/nf-core/genomicrelatedness",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {
