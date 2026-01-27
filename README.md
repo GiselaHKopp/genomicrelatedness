@@ -101,7 +101,7 @@ nextflow run nf-core/genomicrelatedness \
    --outdir <OUTDIR>
 ```
 
-> **Note:** If the parameter `--bootstrapping_rounds` is provided, it must be an integer between 0 and 3, with 0 having no effect.
+> **Note:** If the parameter `--bootstrapping_rounds` is provided, it must be an integer between 1 and 3.
 
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
