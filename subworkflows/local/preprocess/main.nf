@@ -67,7 +67,7 @@ workflow PREPROCESS {
                         .map { _rgsm, metas, bams ->
                             // Take the first meta and remove RGPU
                             def meta = metas[0]
-                            def merged_meta = meta - meta.subMap('RGPU') + [id: meta.RGSM + '_merged']
+                            def merged_meta = meta + [id: meta.RGSM + '_merged']
                             [merged_meta, bams]
                         }
 
@@ -89,12 +89,24 @@ workflow PREPROCESS {
     GATK4_MARKDUPLICATES(merged_bam, fasta.map { tuple -> tuple[1] }, fai.map{ tuple -> tuple[1] })
     versions = versions.mix(GATK4_MARKDUPLICATES.out.versions)
     multiqc_files = multiqc_files.mix(GATK4_MARKDUPLICATES.out.metrics.map { tuple -> tuple[1] })
-    ch_cram = GATK4_MARKDUPLICATES.out.cram.mix(ch_input_branches.cram)
+    ch_cram = GATK4_MARKDUPLICATES.out.cram
+        .mix(ch_input_branches.cram)
+        .map { meta, cram_file ->
+            def norm_meta = meta - meta.subMap('RGID', 'RGPU', 'RGPL', 'RGLB') + [ id: meta.RGSM ]
+
+            tuple(norm_meta, cram_file)
+        }
 
     // Compute index
     SAMTOOLS_INDEX(ch_input_branches.cram)
     versions = versions.mix(SAMTOOLS_INDEX.out.versions)
-    ch_crai = GATK4_MARKDUPLICATES.out.crai.mix(SAMTOOLS_INDEX.out.crai)
+    ch_crai = GATK4_MARKDUPLICATES.out.crai
+        .mix(SAMTOOLS_INDEX.out.crai)
+        .map { meta, crai_file ->
+            def norm_meta = meta - meta.subMap('RGID', 'RGPU', 'RGPL', 'RGLB') + [ id: meta.RGSM ]
+
+            tuple(norm_meta, crai_file)
+        }
 
     // Preseq analyses
     PRESEQ_CCURVE(ch_cram)
