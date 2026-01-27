@@ -32,7 +32,6 @@ workflow CRAM_BASERECALIBRATOR {
         vcf.map { _meta, files -> [[id:'known_sites'], files] },
         tbi.map { _meta, files -> [[id:'known_sites'], files] }
     )
-    versions = versions.mix(GATK4_BASERECALIBRATOR.out.versions)
 
     // Figuring out if there is one or more table(s) from the same sample
     ch_table_to_merge = GATK4_BASERECALIBRATOR.out.table

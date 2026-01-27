@@ -12,37 +12,37 @@
                     },
                     "bcftools/call": {
                         "branch": "master",
-                        "git_sha": "e753770db613ce014b3c4bc94f6cba443427b726",
+                        "git_sha": "6383d8fe58f9498eecd5aa303e71a4a932d1e9f6",
                         "installed_by": ["modules"]
                     },
                     "bcftools/concat": {
                         "branch": "master",
-                        "git_sha": "345b60fff6a192d55c2a220ae413c57f29b698b7",
+                        "git_sha": "6383d8fe58f9498eecd5aa303e71a4a932d1e9f6",
                         "installed_by": ["modules"]
                     },
                     "bcftools/index": {
                         "branch": "master",
-                        "git_sha": "94a767478097e92dca1386ea623d9dae9edc025a",
+                        "git_sha": "6383d8fe58f9498eecd5aa303e71a4a932d1e9f6",
                         "installed_by": ["modules"]
                     },
                     "bcftools/isec": {
                         "branch": "master",
-                        "git_sha": "e753770db613ce014b3c4bc94f6cba443427b726",
+                        "git_sha": "6383d8fe58f9498eecd5aa303e71a4a932d1e9f6",
                         "installed_by": ["modules"]
                     },
                     "bcftools/mpileup": {
                         "branch": "master",
-                        "git_sha": "24ddb015296945d5435625e0efdb7a67885b898f",
+                        "git_sha": "6383d8fe58f9498eecd5aa303e71a4a932d1e9f6",
                         "installed_by": ["modules"]
                     },
                     "bcftools/sort": {
                         "branch": "master",
-                        "git_sha": "1a2aa4aaf1916cca388cf27c7a6d8238bb5ad68b",
+                        "git_sha": "6383d8fe58f9498eecd5aa303e71a4a932d1e9f6",
                         "installed_by": ["modules"]
                     },
                     "bcftools/stats": {
                         "branch": "master",
-                        "git_sha": "e753770db613ce014b3c4bc94f6cba443427b726",
+                        "git_sha": "6383d8fe58f9498eecd5aa303e71a4a932d1e9f6",
                         "installed_by": ["modules"]
                     },
                     "bwamem2/index": {
@@ -57,22 +57,22 @@
                     },
                     "fastp": {
                         "branch": "master",
-                        "git_sha": "b8f1de0ac853ae5b56c63450d47438f899c553d0",
+                        "git_sha": "a331ecfd1aa48b2b2298aab23bb4516c800e410b",
                         "installed_by": ["modules"]
                     },
                     "gatk4/addorreplacereadgroups": {
                         "branch": "master",
-                        "git_sha": "ae8cd884f895585c6799ab4eb6a2c9f44df03336",
+                        "git_sha": "69723e41ae619a00f0333b8063b2dc6d16f28517",
                         "installed_by": ["modules"]
                     },
                     "gatk4/applybqsr": {
                         "branch": "master",
-                        "git_sha": "ae8cd884f895585c6799ab4eb6a2c9f44df03336",
+                        "git_sha": "69723e41ae619a00f0333b8063b2dc6d16f28517",
                         "installed_by": ["modules"]
                     },
                     "gatk4/baserecalibrator": {
                         "branch": "master",
-                        "git_sha": "ae8cd884f895585c6799ab4eb6a2c9f44df03336",
+                        "git_sha": "69723e41ae619a00f0333b8063b2dc6d16f28517",
                         "installed_by": ["modules"]
                     },
                     "gatk4/createsequencedictionary": {
@@ -167,7 +167,7 @@
                     },
                     "samtools/stats": {
                         "branch": "master",
-                        "git_sha": "5cb9a8694da0a0e550921636bb60bc8c56445fd7",
+                        "git_sha": "fe93fde0845f907fc91ad7cc7d797930408824df",
                         "installed_by": ["modules"]
                     },
                     "spring/decompress": {

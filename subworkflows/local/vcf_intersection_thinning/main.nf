@@ -58,7 +58,6 @@ workflow VCF_INTERSECTION_THINNING {
 
     // Run BCFTOOLS_ISEC
     BCFTOOLS_ISEC(ch_isec_input)
-    versions = versions.mix(BCFTOOLS_ISEC.out.versions)
 
     // Collect intersection output
     def has_include = params.include_scaffolds

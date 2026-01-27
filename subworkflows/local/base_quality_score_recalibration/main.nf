@@ -64,7 +64,6 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
         fai.map { _meta, fai_file -> [fai_file] },
         dict.map { _meta, dict_file -> [dict_file] },
     )
-    versions = versions.mix(GATK4_APPLYBQSR.out.versions)
 
     // Merge recalibrated CRAMs if needed
     ch_cram_branch = GATK4_APPLYBQSR.out.cram

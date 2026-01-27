@@ -87,7 +87,6 @@ workflow CALL_VARIANTS_BCFTOOLS {
 
     // Run Bcftools call
     BCFTOOLS_CALL(ch_call_input)
-    versions = versions.mix(BCFTOOLS_CALL.out.versions)
 
     vcf_list = BCFTOOLS_CALL.out.vcf
         .map { meta, vcf_file ->
@@ -110,7 +109,6 @@ workflow CALL_VARIANTS_BCFTOOLS {
 
     // Run Bcftools concat
     BCFTOOLS_CONCAT(ch_concat_input)
-    versions = versions.mix(BCFTOOLS_CONCAT.out.versions)
 
     emit:
     vcf = BCFTOOLS_CONCAT.out.vcf

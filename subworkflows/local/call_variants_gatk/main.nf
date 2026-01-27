@@ -107,7 +107,6 @@ workflow CALL_VARIANTS_GATK {
         }
 
     BCFTOOLS_SORT(ch_vcfs)
-    versions = versions.mix(BCFTOOLS_SORT.out.versions)
 
     ch_merge_vcfs = BCFTOOLS_SORT.out.vcf
             .toSortedList { a, b -> a[0].interval_idx <=> b[0].interval_idx }
@@ -146,7 +145,6 @@ workflow CALL_VARIANTS_GATK {
         fasta
     )
     multiqc_files = multiqc_files.mix(BCFTOOLS_STATS.out.stats.map { tuple -> tuple[1] })
-    versions = versions.mix(BCFTOOLS_STATS.out.versions)
 
     emit:
     vcf = GATK4_MERGEVCFS.out.vcf

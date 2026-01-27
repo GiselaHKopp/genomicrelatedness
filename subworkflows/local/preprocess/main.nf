@@ -48,7 +48,6 @@ workflow PREPROCESS {
     // Trim and QC with FASTP
     ch_fastp_input = merged_fastqs.map { meta, reads -> tuple(meta, reads, []) }
     FASTP(ch_fastp_input, false, false, false)
-    versions = versions.mix(FASTP.out.versions)
     multiqc_files = multiqc_files.mix(FASTP.out.json.collect{ _meta, json -> json })
     multiqc_files = multiqc_files.mix(FASTP.out.html.collect{ _meta, html -> html })
 
@@ -59,7 +58,6 @@ workflow PREPROCESS {
 
     // Add read groups
     GATK4_ADDORREPLACEREADGROUPS(bam, fasta, fai)
-    versions = versions.mix(GATK4_ADDORREPLACEREADGROUPS.out.versions)
 
     ch_bam_rg_added = GATK4_ADDORREPLACEREADGROUPS.out.bam
                         .map { meta, bam_file -> tuple(meta.RGSM, meta, bam_file) }
