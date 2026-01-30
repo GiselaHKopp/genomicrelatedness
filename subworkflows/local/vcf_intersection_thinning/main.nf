@@ -54,7 +54,7 @@ workflow VCF_INTERSECTION_THINNING {
 
     ch_isec_input = ch_vcfs
         .join(ch_tbis)
-        .map { meta, vcfs, tbis -> tuple(meta, vcfs, tbis) }
+        .map { meta, vcfs, tbis -> tuple(meta, vcfs, tbis, [], [], []) }
 
     // Run BCFTOOLS_ISEC
     BCFTOOLS_ISEC(ch_isec_input)
