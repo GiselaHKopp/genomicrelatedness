@@ -21,25 +21,45 @@
 
 ## Introduction
 
-**nf-core/genomicrelatedness** is a bioinformatics pipeline for estimating genetic relatedness from low-coverage whole-genome sequencing (sWGS) data. It performs read mapping, optional base quality score recalibration, variant calling with GATK and BCFtools, and downstream relatedness estimation using multiple complementary tools. For many non-model organisms, no high-confidence variant set is available. The pipeline provides an automated multi-round bootstrapping workflow to generate one. The resulting standardized outputs include genotype likelihood-based variant calls, filtered VCF files, and relatedness estimates from several independent algorithms, enabling robust inference even from very sparse sequencing data.
+**nf-core/genomicrelatedness** is a bioinformatics pipeline for estimating genomic relatedness from low-coverage whole-genome sequencing (lcWGS) data. It performs read mapping, optional base quality score recalibration, variant calling with GATK and BCFtools, and downstream relatedness estimation using multiple complementary tools. For many non-model organisms, no high-confidence variant set is available. The pipeline provides an automated multi-round bootstrapping workflow to generate one. The resulting standardized outputs include genotype likelihood-based variant calls, filtered VCF files, and relatedness estimates from several independent algorithms, enabling robust inference even from very sparse sequencing data.
 
 ![overview](assets/genomicrelatedness_global_metro_map.png)
 
-The pipeline can perform the following major processing stages:
+The pipeline consists of the following four main sections that perform the major processing steps:
 
-1. Input parsing & metadata setup: Reads a CSV samplesheet describing the input FASTQ, SPRING or CRAM files and their read-group information.
+1. **Preprocessing section**: Prepares the input files for downstream analyses.
 
-2. Reference genome preparation:
-   If not provieded, this step automatically generates:
+    - **Reference  genome preparation (`--prepare_genome`)**: This step prepares the input reference genome and generates the relevant files for subsequent processing steps. Key processes include:
 
-- BWA-MEM2 index files
-- FASTA index (.fai)
-- Sequence dictionary (.dict)
+        - *Indexing* of the reference genome with [`BWA-mem2 -index`](https://bio-bwa.sourceforge.net/bwa.shtml) to generate alignment index files. 
 
-3. Read alignment
+        - *Indexing* of the reference genome with [`samtools -faidx`](https://www.htslib.org/doc/samtools-faidx.html) to generate FASTA index (.fai)
 
-- Aligns raw FASTQ reads to the reference genome.
-- Produces sorted, indexed CRAM files with proper read-group annotations.
+        - *Creating sequence dictionary* with the [`GATK4 -createsequencedictionary`](https://gatk.broadinstitute.org/hc/en-us/articles/360036729911-CreateSequenceDictionary-Picard) to generate sequence dictionary file (.dict)
+
+    - **Interval preparation (--prepare_intervals)**: This step splits the indexed reference genome into intervals for computational more efficient downstrean analyses.
+
+        - *Build and split intervals* of the reference genome with [`gawk -build_intervals`] and [`split_intervals`] to generate interval file (.bed)
+
+    - **Preprocessing of raw sequencing reads (`--preprocess`)**: This step performs all essential steps to provide mapped sequence reads and quality metrics.
+
+        - *Input parsing & metadata setup*: Reads a CSV samplesheet describing the input FASTQ or SPRING files with raw sequencing reads and their read-group information.
+
+        - *Raw read quality control*: performs quality control, trimming, filtering and merging of paired reads with [`fastp`](https://github.com/OpenGene/fastp), generating trimmed and filtered paired reads (.merged.fastq.gz)
+
+        - *Read mapping*: Aligns the paired reads to the reference genome with [`BWA-mem2 -mem`](https://bio-bwa.sourceforge.net/bwa.shtml), sorts reads with [`samtools -sort`](https://www.htslib.org/doc/samtools-sort.html), adds read group information with [`GATK4 -addorreplacereadgroups`](https://janis.readthedocs.io/en/latest/tools/bioinformatics/gatk4/gatk4createsequencedictionary.html).
+
+        - *Merge* files stemming from the same sample with [`samtools -merge`](https://www.htslib.org/doc/samtools-merge.html).
+
+        - *Remove duplicates* with [`GATK4 -markduplicates`](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard).
+
+        - *Indexing* of the mapped reads with [`samtools -index`](https://www.htslib.org/doc/samtools-index.html), providing sorted and indexed compressed alignment files with proper read group annotations (.cram) and corresponding index (.crai).
+
+        - *Quality metrics* of the sequencing data are compiled with [`MultiQC`] and include overviews of library complexity analysed with [`preseq -ccurve`] and [`preseq -lcextrap`], read mapping statics over the various preprocessing steps with [`samtools -stats`], and genome coverage using [`mosdepth`].
+
+
+
+ 
 
 4. If a known variant set is provided, runs Base Quality Score Recalibration.
 
