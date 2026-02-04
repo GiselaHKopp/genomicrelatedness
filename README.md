@@ -80,17 +80,34 @@ The pipeline consists of the following four main sections that perform the major
 
     - **Variant calling with BCFtools (`--call_variants-bcftools`)** employs [`bcftools -mpileup`](https://samtools.github.io/bcftools/bcftools.html#mpileup) and [`bcftools -call`](https://samtools.github.io/bcftools/bcftools.html#call) per scaffold, and concatenates results into a full cohort VCF with [`bcftools -concat`](https://samtools.github.io/bcftools/bcftools.html#concat).
 
-    - **Intersection and filtering of variants (`--vcf_intersection_thinning`)** uses [`bcftools -isec`](https://samtools.github.io/bcftools/bcftools.html#isec) to retain only variants called by both algorithms. Subsequently, variants are filtered using [`vcftools -exclude`](https://vcftools.sourceforge.net/man_latest.html) (using the *OPTIONAL* parameter `include_scaffolds` or `exclude_scaffolds`) and [`vcftools -thin`](https://vcftools.sourceforge.net/man_latest.html) (*DEFAULT* --remove-filtered-all –remove-indels –maf 0.025 –recode –recode-INFO-all –max-missing 0.75) to produce the final variant set (.vcf).
+    - **Intersection and filtering of variants (`--vcf_intersection_thinning`)** uses [`bcftools -isec`](https://samtools.github.io/bcftools/bcftools.html#isec) to retain only variants called by both algorithms. Subsequently, variants are filtered using [`vcftools -exclude`](https://vcftools.sourceforge.net/man_latest.html) (for example just retaining autosomal variants using the *OPTIONAL* parameter `include_scaffolds` or `exclude_scaffolds`) and [`vcftools -thin`](https://vcftools.sourceforge.net/man_latest.html) (*DEFAULT* --remove-filtered-all –remove-indels –maf 0.025 –recode –recode-INFO-all –max-missing 0.75) to produce the final variant set (.vcf).
 
     - **Variant statistics** are produced for each subworkflow to judge the quality of the called variants. 
 
 
-11. Relatedness estimation (multi-tool)
-    Uses multiple complementary tools to increase robustness, depending on configuration:
+4. **Relatedness estimation section**: produces robust estimates of pairwise relatedness suitable for lcWGS data using complementary tools. 
+    
+    - **PMR-based relatedness estimation with READv2 (`--relatedness-read`)** uses the pairwise-mismatch rate approach base on pseudohaploid data implemented in [`READv2`](https://github.com/GuntherLab/READv2).
 
-- NGSrelate/ANGSD (likelihood-based estimation directly from genotype likelihoods)
+        > [!NOTE]
+        > not yet functional because file conversion to eigenstrat failed
 
-12. MultiQC reporting: Aggregates quality metrics across all workflow stages into a single interactive report.
+
+
+    - **Bayesian PMR-based relatedness estimation with BREADR (`--relatedness_breadr`)** uses the pairwise-mismatch rate approach on thinned data and Bayesian posterior probabilities as implemented in the R package [`BREADR`](https://github.com/jonotuke/BREADR).
+
+         > [!NOTE]
+        > not yet functional  because file conversion to eigenstrat failed
+
+
+
+    - **Maximum-likelihood estimation of relatedness from genotype likelihoods with NGSrelate (`--relatedness_ngsrelate`)** uses genotype likelihoods to infer IBD with maximum-likelihood analysis as implemented in [`NgsRelatev2`](https://github.com/ANGSD/NgsRelate).
+
+
+5. MultiQC reporting: Aggregates quality metrics across all workflow stages into a single interactive report.
+
+
+For detailed instructions, please refer to the [usage documentation](https://nf-co.re/genomicrelatedness/usage).
 
 ## Usage
 
