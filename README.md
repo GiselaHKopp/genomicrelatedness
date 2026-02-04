@@ -53,9 +53,9 @@ The pipeline consists of the following four main sections that perform the major
 
         - *Remove duplicates* with [`GATK4 -markduplicates`](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard).
 
-        - *Indexing* of the mapped reads with [`samtools -index`](https://www.htslib.org/doc/samtools-index.html), providing sorted and indexed compressed alignment files with proper read group annotations (.cram) and corresponding index (.crai).
+        - *Indexing* of the mapped reads with [`samtools -index`](https://www.htslib.org/doc/samtools-index.html), providing sorted and indexed compressed alignment files with proper read group annotations (.cram) and corresponding index files (.crai).
 
-        - *Quality metrics* of the sequencing data are compiled with [`MultiQC`] and include overviews of library complexity analysed with [`preseq -ccurve`] and [`preseq -lcextrap`], read mapping statics over the various preprocessing steps with [`samtools -stats`], and genome coverage using [`mosdepth`].
+        - *Quality metrics* of the sequencing data are compiled with [`MultiQC`](https://github.com/MultiQC/MultiQC) and include overviews of library complexity analysed with [`preseq -c_curve`](https://preseq.readthedocs.io/en/latest/) and [`preseq -lcextrap`](https://preseq.readthedocs.io/en/latest/), read mapping statics over the various preprocessing steps with [`samtools -stats`](https://www.htslib.org/doc/samtools-stats.html), and genome coverage using [`mosdepth`](https://github.com/brentp/mosdepth).
 
 2. **BQSR section**: corrects systematic errors introduced during sequencing by adjusting base quality scores.
 
@@ -67,19 +67,23 @@ The pipeline consists of the following four main sections that perform the major
 
     - **BQSR (`--base-quality-score-recalibration`)**: uses the produced or a provided variant set to adjust quality scores in alignment files:
 
-        - *BQSR* with [`GATK4 -BaseRecalibrator`](https://gatk.broadinstitute.org/hc/en-us/articles/360036898312-BaseRecalibrator), [`GATK4 -GatherBQSRReport](https://gatk.broadinstitute.org/hc/en-us/articles/360037433771-GatherBQSRReports), [`GATK4 -ApplyBQSR`](https://gatk.broadinstitute.org/hc/en-us/articles/360037268511-ApplyBQSR), [`samtools -merge`](https://www.htslib.org/doc/samtools-merge.html), and [`samtools -index`](https://www.htslib.org/doc/samtools-index.html) to produce recalibrated alignment files (.cram).
+        - *BQSR* with [`GATK4 -BaseRecalibrator`](https://gatk.broadinstitute.org/hc/en-us/articles/360036898312-BaseRecalibrator), [`GATK4 -GatherBQSRReport`](https://gatk.broadinstitute.org/hc/en-us/articles/360037433771-GatherBQSRReports), [`GATK4 -ApplyBQSR`](https://gatk.broadinstitute.org/hc/en-us/articles/360037268511-ApplyBQSR), [`samtools -merge`](https://www.htslib.org/doc/samtools-merge.html), and [`samtools -index`](https://www.htslib.org/doc/samtools-index.html) to produce recalibrated alignment files (.cram).
 
         - *BQSR diagnostics* with [`GATK4 -AnalyzeCovariates`](https://gatk.broadinstitute.org/hc/en-us/articles/360037066912-AnalyzeCovariates) to evaluate the effectiveness of recalibration.
 
-        - *Iteration* (*DEFAULT: 2 rounds) of recalibration. 
+        - *Iteration* (*DEFAULT: 2 rounds*) of recalibration. 
 
 
+3. **Genotyping section**: calls variants with different algorithms to produce genotype likelihoods for all samples. The default is that both subworkflows run in parallel, but can be adjusted to one or the other.
 
-7. Variant calling (GATK HaplotypeCaller & BCFtools)
+    - **Variant calling with GATK (`--call_variants-gatk`)** performs joint variant discovery for all samples with [`GATK4 -HaplotypeCaller`](https://gatk.broadinstitute.org/hc/en-us/articles/360037225632-HaplotypeCaller) , [`GATK4 -GenomicsDBImport`](https://gatk.broadinstitute.org/hc/en-us/articles/360036883491-GenomicsDBImport), [`GATK4 -GenotypeGVCFs`](https://gatk.broadinstitute.org/hc/en-us/articles/360037057852-GenotypeGVCFs), [`GATK4 -mergevcfs`](https://gatk.broadinstitute.org/hc/en-us/articles/360036713331-MergeVcfs-Picard).
 
-9. Combines GATK and BCFtools results using bcftools isec to produce a conservative, high-confidence set of variants.
+    - **Variant calling with BCFtools (`--call_variants-bcftools`)** employs [`bcftools -mpileup`](https://samtools.github.io/bcftools/bcftools.html#mpileup) and [`bcftools -call`](https://samtools.github.io/bcftools/bcftools.html#call) per scaffold, and concatenates results into a full cohort VCF with [`bcftools -concat`](https://samtools.github.io/bcftools/bcftools.html#concat).
 
-10. Variant filtering & thinning and optional exclusion of specific scaffolds.
+    - **Intersection and filtering of variants (`--vcf_intersection_thinning`)** uses [`bcftools -isec`](https://samtools.github.io/bcftools/bcftools.html#isec) to retain only variants called by both algorithms. Subsequently, variants are filtered using [`vcftools -exclude`](https://vcftools.sourceforge.net/man_latest.html) (using the *OPTIONAL* parameter `include_scaffolds` or `exclude_scaffolds`) and [`vcftools -thin`](https://vcftools.sourceforge.net/man_latest.html) (*DEFAULT* --remove-filtered-all –remove-indels –maf 0.025 –recode –recode-INFO-all –max-missing 0.75) to produce the final variant set (.vcf).
+
+    - **Variant statistics** are produced for each subworkflow to judge the quality of the called variants. 
+
 
 11. Relatedness estimation (multi-tool)
     Uses multiple complementary tools to increase robustness, depending on configuration:
