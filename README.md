@@ -41,7 +41,7 @@ The pipeline consists of the following four main sections that perform the major
 
         - *Build and split intervals* of the reference genome with [`gawk -build_intervals`] and [`split_intervals`] to generate interval file (.bed)
 
-    - **Preprocessing of raw sequencing reads (`--preprocess`)**: This step performs all essential steps to provide mapped sequence reads and quality metrics.
+    - **Preprocessing of raw sequencing reads (`--preprocess`)**: This step performs all essential steps to provide aligned sequence reads and quality metrics.
 
         - *Input parsing & metadata setup*: Reads a CSV samplesheet describing the input FASTQ or SPRING files with raw sequencing reads and their read-group information.
 
@@ -57,21 +57,25 @@ The pipeline consists of the following four main sections that perform the major
 
         - *Quality metrics* of the sequencing data are compiled with [`MultiQC`] and include overviews of library complexity analysed with [`preseq -ccurve`] and [`preseq -lcextrap`], read mapping statics over the various preprocessing steps with [`samtools -stats`], and genome coverage using [`mosdepth`].
 
+2. **BQSR section**: corrects systematic errors introduced during sequencing by adjusting base quality scores.
+
+    - **Variant bootstrapping (`--bootstrap_variant_set`)**: (*OPTIONAL*) If no known variant set is available, this step automatically generates one via bootsrapping. It iteratively refines and stabilises the set of high-confidence variants for downstream use.
+
+        - *Variant calling* performs joint variant discovery for all samples with [`GATK4 -HaplotypeCaller`](https://gatk.broadinstitute.org/hc/en-us/articles/360037225632-HaplotypeCaller), [`GATK4 -GenomicsDBImport`](https://gatk.broadinstitute.org/hc/en-us/articles/360036883491-GenomicsDBImport), [`GATK4 -GenotypeGVCFs`](https://gatk.broadinstitute.org/hc/en-us/articles/360037057852-GenotypeGVCFs), [`GATK4 -mergevcfs`](https://gatk.broadinstitute.org/hc/en-us/articles/360036713331-MergeVcfs-Picard).
+
+        - *Hard filtering of variants* to create a high confidence reference variant set (.vcf) with [`GATK4 -VariantFiltration`](https://gatk.broadinstitute.org/hc/en-us/articles/360037434691-VariantFiltration) (Qual >=100, QD < 2.0; MQ < 35.0; FS >60; HaplotypeScore > 13.0; MQRankSum < -12.5; ReadPosRankSum < -8.0) and [`GATK4 -SelectVariants`](https://gatk.broadinstitute.org/hc/en-us/articles/360037055952-SelectVariants).  
+
+    - **BQSR (`--base-quality-score-recalibration`)**: uses the produced or a provided variant set to adjust quality scores in alignment files:
+
+        - *BQSR* with [`GATK4 -BaseRecalibrator`](https://gatk.broadinstitute.org/hc/en-us/articles/360036898312-BaseRecalibrator), [`GATK4 -GatherBQSRReport](https://gatk.broadinstitute.org/hc/en-us/articles/360037433771-GatherBQSRReports), [`GATK4 -ApplyBQSR`](https://gatk.broadinstitute.org/hc/en-us/articles/360037268511-ApplyBQSR), [`samtools -merge`](https://www.htslib.org/doc/samtools-merge.html), and [`samtools -index`](https://www.htslib.org/doc/samtools-index.html) to produce recalibrated alignment files (.cram).
+
+        - *BQSR diagnostics* with [`GATK4 -AnalyzeCovariates`](https://gatk.broadinstitute.org/hc/en-us/articles/360037066912-AnalyzeCovariates) to evaluate the effectiveness of recalibration.
+
+        - *Iteration* (*DEFAULT: 2 rounds) of recalibration. 
 
 
- 
-
-4. If a known variant set is provided, runs Base Quality Score Recalibration.
-
-5. If no known variant set is available, the pipeline can generate one automatically via bootstrapping.
-
-- Iteratively refines and stabilises the set of high-confidence SNPs for downstream use.
-
-6. Runs Base Quality Score Recalibration if a known variant set was provided.
 
 7. Variant calling (GATK HaplotypeCaller & BCFtools)
-
-8. Performs joint variant discovery for all samples.
 
 9. Combines GATK and BCFtools results using bcftools isec to produce a conservative, high-confidence set of variants.
 
