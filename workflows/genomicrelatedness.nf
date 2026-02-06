@@ -248,14 +248,14 @@ workflow GENOMICRELATEDNESS {
     //
     // SUBWORKFLOW: RELATEDNESS_BREADR
     //
-    RELATEDNESS_BREADR(VCF_INTERSECTION_THINNING.out.intersection)
-    ch_versions = ch_versions.mix(RELATEDNESS_BREADR.out.versions)
+    //RELATEDNESS_BREADR(VCF_INTERSECTION_THINNING.out.intersection)
+    //ch_versions = ch_versions.mix(RELATEDNESS_BREADR.out.versions)
 
     //
     // SUBWORKFLOW: RELATEDNESS_READ
     //
-    RELATEDNESS_READ(VCF_INTERSECTION_THINNING.out.intersection)
-    ch_versions = ch_versions.mix(RELATEDNESS_READ.out.versions)
+    //RELATEDNESS_READ(VCF_INTERSECTION_THINNING.out.intersection)
+    //ch_versions = ch_versions.mix(RELATEDNESS_READ.out.versions)
 
     //
     // MODULE: ANGSD_NGSRELATE
