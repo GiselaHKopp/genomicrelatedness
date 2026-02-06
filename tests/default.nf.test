@@ -14,7 +14,7 @@ nextflow_pipeline {
 
         then {
             // stable_name: All files + folders in ${params.outdir}/ with a stable name
-            def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}', 'bootstrapping/round_*/variants/db/*_joint/**'])
+            def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}', '**/db/*_joint/**'])
             // stable_path: All files in ${params.outdir}/ with stable content
             def stable_content = getAllFilesFromDir(params.outdir, relative: false, ignoreFile: 'tests/.nftignore')
             // BAM, CRAM and VCF files
