@@ -21,18 +21,23 @@ nextflow_pipeline {
             def bam_files = getAllFilesFromDir(params.outdir, include: ['**/*.bam'])
             def cram_files = getAllFilesFromDir(params.outdir, include: ['**/*.cram'])
             def vcf_files = getAllFilesFromDir(params.outdir, include: ['**/*.vcf{,.gz}'])
+            // Reference fasta file for CRAM MD5 checks
+            def fasta_base  = '/home/thomas/Documents/projects/bwrse4hpc/genomicrelatedness/test_data_26112025/RefGenome/'
+            //def fasta_base  = 'https://raw.githubusercontent.com/nf-core/test-datasets/genomicrelatedness/'
+            def fasta = fasta_base + 'NC_044995.1_Panubis1.0_Chr20.fasta'
             assertAll(
                 { assert workflow.success},
                 { assert snapshot(
                     // pipeline versions.yml file for multiqc from which Nextflow version is removed because we test pipelines on multiple Nextflow versions
                     removeFromYamlMap("${params.outdir}/pipeline_info/nf_core_genomicrelatedness_software_mqc_versions.yml", "Nextflow", "Workflow"),
                     // All files with stable contents
-                    stable_content,
+                    stable_content.isEmpty() ? 'No stable content' : stable_content,
                     // All stable path name, with a relative path
                     stable_name,
                     // BAM files
                     bam_files.isEmpty() ? 'No BAM files' : bam_files.collect { file -> file.getName() + ":md5," + bam(file.toString()).readsMD5 },
                     // CRAM files - only check names for unstable ones
+                    //cram_files.isEmpty() ? 'No CRAM files' : cram_files.collect { file -> file.getName() + ":md5," +  cram(file.toString(), fasta).readsMD5 },
                     cram_files.isEmpty() ? 'No CRAM files' : cram_files.collect { file -> file.getName() },
                     // VCF files
                     vcf_files.isEmpty() ? 'No VCF files' : vcf_files.collect { file -> file.getName() + ":md5," + path(file.toString()).vcf.variantsMD5 }
