@@ -45,4 +45,4 @@ bootstrapping/round_*/bqsr/qc/*.{csv,pdf}
 #---------------#
 #- Genomics DB -#
 #---------------#
-bootstrapping/round_*/variants/db/*_joint/**/*
+**/db/*_joint/**
