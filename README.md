@@ -60,8 +60,6 @@ The pipeline can perform the following major processing stages:
 11. Relatedness estimation (multi-tool)
     Uses multiple complementary tools to increase robustness, depending on configuration:
 
-- READv2 (ML-based relatedness estimation for low-coverage data)
-- BREADR (R-based Bayesian relatedness inference)
 - NGSrelate/ANGSD (likelihood-based estimation directly from genotype likelihoods)
 
 12. MultiQC reporting: Aggregates quality metrics across all workflow stages into a single interactive report.
