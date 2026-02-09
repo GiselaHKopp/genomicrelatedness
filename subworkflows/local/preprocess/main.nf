@@ -12,7 +12,6 @@ include { PRESEQ_CCURVE                  } from '../../../modules/nf-core/preseq
 include { PRESEQ_LCEXTRAP                } from '../../../modules/nf-core/preseq/lcextrap'
 include { SAMTOOLS_INDEX                 } from '../../../modules/nf-core/samtools/index'
 include { SAMTOOLS_MERGE                 } from '../../../modules/nf-core/samtools/merge/main'
-include { SAMTOOLS_SORT                  } from '../../../modules/nf-core/samtools/sort'
 include { SAMTOOLS_STATS                 } from '../../../modules/nf-core/samtools/stats'
 include { SPRING_DECOMPRESS              } from '../../../modules/nf-core/spring/decompress'
 
@@ -57,16 +56,8 @@ workflow PREPROCESS {
     versions = versions.mix(BWAMEM2_MEM.out.versions)
     bam = BWAMEM2_MEM.out.bam.mix(ch_input_branches.bam)
 
-    // Sort BAMs
-    bam_sorted = bam.map { meta, bam_file ->
-        def new_id = meta.id + '_sorted'
-        def new_meta = meta + [ id: new_id ]
-        tuple(new_meta, bam_file, [])
-    }
-    SAMTOOLS_SORT(bam_sorted, fasta, [])
-
     // Add read groups
-    GATK4_ADDORREPLACEREADGROUPS(SAMTOOLS_SORT.out.bam, fasta, fai)
+    GATK4_ADDORREPLACEREADGROUPS(bam, fasta, fai)
     ch_bam_rg_added = GATK4_ADDORREPLACEREADGROUPS.out.bam
                         .map { meta, bam_file -> tuple(meta.RGSM, meta, bam_file) }
                         .groupTuple()
