@@ -5,6 +5,9 @@
                 "BCFTOOLS_CONCAT": {
                     "bcftools": 1.22
                 },
+                "BCFTOOLS_ISEC": {
+                    "bcftools": 1.22
+                },
                 "BCFTOOLS_SORT": {
                     "bcftools": 1.22
                 },
@@ -82,11 +85,11 @@
                 "SAMTOOLS_MERGE": {
                     "samtools": "1.22.1"
                 },
-                "SAMTOOLS_SORT": {
-                    "samtools": "1.22.1"
-                },
                 "SAMTOOLS_STATS": {
                     "samtools": "1.22.1"
+                },
+                "VCFTOOLS_THIN": {
+                    "vcftools": "0.1.16"
                 },
                 "Workflow": {
                     "nf-core/genomicrelatedness": "v1.0.0dev"
@@ -114,6 +117,8 @@
                 "NC_044995.1_Panubis1.0_Chr20.fna.ann:md5,f22fdf584050106921f258f4679f4721",
                 "NC_044995.1_Panubis1.0_Chr20.fna.bwt.2bit.64:md5,1cfeb1b13d1607385f3f69b0f828edc1",
                 "NC_044995.1_Panubis1.0_Chr20.fna.pac:md5,8412c8495a23f5862cb54d39e9c8f90a",
+                "README.txt:md5,9dc1a4ad7cc770ddc79f8fc0bcbc5d1d",
+                "sites.txt:md5,2b6f85d984846897c840bebf818b2b43",
                 "called_variants.gatk.bcftools_stats.txt:md5,28e4ba752dbff7a673fadd2c6005586c"
             ],
             [
@@ -338,8 +343,6 @@
                 "preprocessing",
                 "preprocessing/alignment",
                 "preprocessing/alignment/bam",
-                "preprocessing/alignment/bam/MC_24AB06_e04_S12_sorted.bam",
-                "preprocessing/alignment/bam/MC_24AC01_e02_S6_sorted.bam",
                 "preprocessing/alignment/bam/bwamem2",
                 "preprocessing/alignment/bam/bwamem2/MC_24AB06_e04_S12.bam",
                 "preprocessing/alignment/bam/bwamem2/MC_24AC01_e02_S6.bam",
@@ -347,8 +350,8 @@
                 "preprocessing/alignment/bam/merged/MC_24AB06_e04_merged.bam",
                 "preprocessing/alignment/bam/merged/MC_24AC01_e02_merged.bam",
                 "preprocessing/alignment/bam/rgadded",
-                "preprocessing/alignment/bam/rgadded/MC_24AB06_e04_S12_sorted.rgadded.bam",
-                "preprocessing/alignment/bam/rgadded/MC_24AC01_e02_S6_sorted.rgadded.bam",
+                "preprocessing/alignment/bam/rgadded/MC_24AB06_e04_S12.rgadded.bam",
+                "preprocessing/alignment/bam/rgadded/MC_24AC01_e02_S6.rgadded.bam",
                 "preprocessing/alignment/cram",
                 "preprocessing/alignment/cram/MC_24AB06_e04.cram",
                 "preprocessing/alignment/cram/MC_24AB06_e04.cram.crai",
@@ -383,6 +386,16 @@
                 "reference_genome/bwamem2/NC_044995.1_Panubis1.0_Chr20.fna.ann",
                 "reference_genome/bwamem2/NC_044995.1_Panubis1.0_Chr20.fna.bwt.2bit.64",
                 "reference_genome/bwamem2/NC_044995.1_Panubis1.0_Chr20.fna.pac",
+                "relatedness_estimation",
+                "relatedness_estimation/intersection",
+                "relatedness_estimation/intersection/0000.vcf",
+                "relatedness_estimation/intersection/0001.vcf",
+                "relatedness_estimation/intersection/0002.vcf",
+                "relatedness_estimation/intersection/0003.vcf",
+                "relatedness_estimation/intersection/README.txt",
+                "relatedness_estimation/intersection/sites.txt",
+                "relatedness_estimation/thinned",
+                "relatedness_estimation/thinned/called_variants_thinned.recode.vcf",
                 "variant_calling",
                 "variant_calling/bcftools",
                 "variant_calling/bcftools/I1.called.vcf.gz",
@@ -426,6 +439,6 @@
             "nf-test": "0.9.3",
             "nextflow": "25.10.3"
         },
-        "timestamp": "2026-02-09T15:54:26.466645607"
+        "timestamp": "2026-02-09T16:43:15.072325633"
     }
 }
