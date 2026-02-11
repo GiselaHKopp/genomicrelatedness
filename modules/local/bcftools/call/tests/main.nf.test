@@ -1,0 +1,34 @@
+nextflow_process {
+
+    name "Test Process BCFTOOLS_CALL"
+    script "../main.nf"
+    process "BCFTOOLS_CALL"
+
+    tag "modules"
+    tag "modules_local"
+    tag "bcftools"
+    tag "bcftools/call"
+
+    test("placeholder-smoke-bcftools-call") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file('__PLACEHOLDER_BCFTOOLS_CALL_INPUT_VCF__', checkIfExists: true),
+                    []
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.vcf.size() == 1 },
+                { assert process.out.versions.size() == 1 }
+            )
+        }
+    }
+}

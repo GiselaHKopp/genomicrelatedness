@@ -1,0 +1,53 @@
+{
+    "test-bcftools-mpileup": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.vcf.gz:md5,f2953f0b97e5280f34378a9c7e98ec8a"
+                    ]
+                ],
+                "1": [
+                    
+                ],
+                "2": [
+                    
+                ],
+                "3": [
+                    
+                ],
+                "4": [
+                    "versions.yml:md5,14ba6682ef906ab7e0ea1da2f47d2f08"
+                ],
+                "csi": [
+                    
+                ],
+                "raw_mpileup": [
+                    
+                ],
+                "tbi": [
+                    
+                ],
+                "vcf": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.vcf.gz:md5,f2953f0b97e5280f34378a9c7e98ec8a"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,14ba6682ef906ab7e0ea1da2f47d2f08"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.3"
+        },
+        "timestamp": "2026-02-11T17:13:12.47323346"
+    }
+}

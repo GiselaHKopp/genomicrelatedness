@@ -1,0 +1,33 @@
+nextflow_process {
+
+    name "Test Process ANGSD_NGSRELATE"
+    script "../main.nf"
+    process "ANGSD_NGSRELATE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "angsd"
+    tag "angsd/ngsrelate"
+
+    test("placeholder-smoke-angsd-ngsrelate") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file('__PLACEHOLDER_ANGSD_NGSRELATE_INPUT_VCF__', checkIfExists: true)
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.plots.size() == 1 },
+                { assert process.out.versions.size() == 1 }
+            )
+        }
+    }
+}
