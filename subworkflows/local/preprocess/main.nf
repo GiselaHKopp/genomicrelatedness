@@ -45,6 +45,7 @@ workflow PREPROCESS {
 
     // Merge with normal FASTQs into one unified channel
     merged_fastqs = ch_input_branches.fastq.mix(SPRING_DECOMPRESS.out.fastq)
+
     // Trim and QC with FASTP
     ch_fastp_input = merged_fastqs.map { meta, reads -> tuple(meta, reads, []) }
     FASTP(ch_fastp_input, false, false, false)
