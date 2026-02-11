@@ -40,7 +40,7 @@ preprocessing/fastp/*fastp.{html,json,log}
 #- BQSR -#
 #--------#
 **/*.table
-bootstrapping/round_*/bqsr/qc/*.{csv,pdf}
+**/qc/*.pdf
 
 #---------------#
 #- Genomics DB -#
