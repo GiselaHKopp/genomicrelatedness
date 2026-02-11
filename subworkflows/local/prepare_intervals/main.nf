@@ -44,7 +44,6 @@ workflow PREPARE_INTERVALS {
     } else {
         // Split intervals into separate files
         SPLIT_INTERVALS(intervals_combined_branched.do_split)
-        versions = versions.mix(SPLIT_INTERVALS.out.versions)
         split_with_meta = SPLIT_INTERVALS.out.bed
     }
 

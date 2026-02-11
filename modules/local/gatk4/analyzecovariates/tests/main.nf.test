@@ -1,0 +1,38 @@
+nextflow_process {
+
+    name "Test Process GATK4_ANALYZECOVARIATES"
+    script "../main.nf"
+    process "GATK4_ANALYZECOVARIATES"
+
+    tag "modules"
+    tag "modules_local"
+    tag "gatk4"
+    tag "gatk4/analyzecovariates"
+
+    test("test-gatk4-analyzecovariates") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/gatk/test.baserecalibrator.table', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/gatk/test2.baserecalibrator.table', checkIfExists: true),
+                    []
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.data,
+                    file(process.out.plots.get(0).get(1)).name
+                  ).match()
+                }
+            )
+        }
+    }
+}

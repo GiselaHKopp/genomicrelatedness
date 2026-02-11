@@ -1,0 +1,20 @@
+{
+    "test-gatk4-analyzecovariates": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.csv:md5,d0d1c72dbaf4fc5fed04a470a7b9a5c2"
+                ]
+            ],
+            "test.pdf"
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.3"
+        },
+        "timestamp": "2026-02-11T08:29:00.246514539"
+    }
+}

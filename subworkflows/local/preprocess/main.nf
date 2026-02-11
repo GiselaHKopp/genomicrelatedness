@@ -45,6 +45,7 @@ workflow PREPROCESS {
 
     // Merge with normal FASTQs into one unified channel
     merged_fastqs = ch_input_branches.fastq.mix(SPRING_DECOMPRESS.out.fastq)
+
     // Trim and QC with FASTP
     ch_fastp_input = merged_fastqs.map { meta, reads -> tuple(meta, reads, []) }
     FASTP(ch_fastp_input, false, false, false)
@@ -58,7 +59,6 @@ workflow PREPROCESS {
 
     // Add read groups
     GATK4_ADDORREPLACEREADGROUPS(bam, fasta, fai)
-
     ch_bam_rg_added = GATK4_ADDORREPLACEREADGROUPS.out.bam
                         .map { meta, bam_file -> tuple(meta.RGSM, meta, bam_file) }
                         .groupTuple()

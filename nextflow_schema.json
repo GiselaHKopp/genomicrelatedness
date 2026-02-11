@@ -252,6 +252,12 @@
                     "fa_icon": "fas fa-forward",
                     "help_text": "Disable this option to perform variant calling using GATK HaplotypeCaller and BCFtools mpileup. This stage generates a VCF file containing the identified variants."
                 },
+                "skip_intersection_thinning": {
+                    "type": "boolean",
+                    "description": "Whether to skip the intersection and thinning of the called variants to a set of high-quality, independent variants for relatedness estimation.",
+                    "fa_icon": "fas fa-forward",
+                    "help_text": "Disable this option to perform intersection and thinning of the called variants using GATK SelectVariants and VCFtools. This step reduces the variant set to a subset of high-quality, independent variants for downstream relatedness estimation."
+                },
                 "skip_relatedness_estimation": {
                     "type": "boolean",
                     "description": "Whether to skip the relatedness estimation stage.",
@@ -266,6 +272,21 @@
                             "skip_variant_calling": { "const": true }
                         },
                         "required": ["skip_variant_calling"]
+                    },
+                    "then": {
+                        "properties": {
+                            "skip_intersection_thinning": { "const": true },
+                            "skip_relatedness_estimation": { "const": true }
+                        },
+                        "required": ["skip_intersection_thinning", "skip_relatedness_estimation"]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "skip_intersection_thinning": { "const": true }
+                        },
+                        "required": ["skip_intersection_thinning"]
                     },
                     "then": {
                         "properties": {

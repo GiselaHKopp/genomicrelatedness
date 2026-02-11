@@ -36,4 +36,15 @@ process GATK4_ANALYZECOVARIATES {
         gatk4: \$(echo \$(gatk AnalyzeCovariates --version 2>&1) | sed 's/^.*(GATK) v//; s/ .*\$//')
     END_VERSIONS
     """
+
+    stub:
+    """
+    touch ${meta.id}.csv
+    touch ${meta.id}.pdf
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        gatk4: \$(echo \$(gatk AnalyzeCovariates --version 2>&1) | sed 's/^.*(GATK) v//; s/ .*\$//')
+    END_VERSIONS
+    """
 }
