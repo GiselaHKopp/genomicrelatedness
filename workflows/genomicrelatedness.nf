@@ -9,8 +9,9 @@ include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pi
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_genomicrelatedness_pipeline'
 
-include { BCFTOOLS_INDEX                                   } from '../modules/nf-core/bcftools/index/main'
 include { ANGSD_NGSRELATE                                  } from '../modules/local/angsd/ngsrelate/main'
+include { BCFTOOLS_INDEX                                   } from '../modules/nf-core/bcftools/index/main'
+include { GUNZIP                                           } from '../modules/nf-core/gunzip/main'
 
 include { BASE_QUALITY_SCORE_RECALIBRATION                 } from '../subworkflows/local/base_quality_score_recalibration'
 include { BOOTSTRAP_VARIANT_SET as BOOTSTRAP_VARIANT_SET_1 } from '../subworkflows/local/bootstrap_variant_set'
@@ -40,9 +41,22 @@ workflow GENOMICRELATEDNESS {
     ch_versions = channel.empty()
     ch_multiqc_files = channel.empty()
 
+    // Unzip gzipped fasta if provided, otherwise create an empty channel for the downstream processes to consume
+    ch_fasta_gzipped = params.fasta
+        ? params.fasta.endsWith('.gz')
+            ? channel.fromPath(params.fasta)
+                .map { f -> [ [id: f.baseName], f ] }
+                .collect()
+            : channel.empty()
+        : channel.empty()
+
+    GUNZIP(ch_fasta_gzipped)
+
     // Define reference genome and index
     ch_fasta = params.fasta
-        ? channel.fromPath(params.fasta)
+        ? params.fasta.endsWith('.gz')
+            ? GUNZIP.out.gunzip
+        : channel.fromPath(params.fasta)
             .map { f -> [ [id: f.baseName], f ] }
             .collect()
         : channel.empty()

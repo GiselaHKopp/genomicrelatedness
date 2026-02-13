@@ -125,6 +125,11 @@
                         "git_sha": "5ee4d69ed992c3ce81cfbbdd0bef932fcb81c75a",
                         "installed_by": ["modules"]
                     },
+                    "gunzip": {
+                        "branch": "master",
+                        "git_sha": "96c57dfd98a0641886a67bd449fe33ee2ec0e374",
+                        "installed_by": ["modules"]
+                    },
                     "mosdepth": {
                         "branch": "master",
                         "git_sha": "6832b69ef7f98c54876d6436360b6b945370c615",
