@@ -261,7 +261,6 @@ workflow GENOMICRELATEDNESS {
     // MODULE: ANGSD_NGSRELATE
     //
     ANGSD_NGSRELATE(VCF_INTERSECTION_THINNING.out.intersection)
-    ch_versions = ch_versions.mix(ANGSD_NGSRELATE.out.versions)
 
     //
     // Collate and save software versions

@@ -10,14 +10,27 @@ nextflow_process {
     tag "angsd/ngsrelate"
 
     test("test-angsd-ngsrelate") {
+        config './nextflow.config'
+
+        setup {
+            run("GUNZIP") {
+                script "modules/nf-core/gunzip/main.nf"
+                process {
+                    """
+                    input[0] = channel.of([
+                                [id:'variants'],
+                                file('/home/thomas/repositories/nf-core/test-datasets/data/angsd_ngsrelate_test.vcf.gz', checkIfExists: true)
+                            ]
+                    )
+                    """
+                }
+            }
+        }
 
         when {
             process {
                 """
-                input[0] = [
-                    [ id:'test' ],
-                    file('__PLACEHOLDER_ANGSD_NGSRELATE_INPUT_VCF__', checkIfExists: true)
-                ]
+                input[0] = GUNZIP.out.gunzip
                 """
             }
         }
@@ -25,7 +38,11 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                { assert snapshot(process.out).match() }
+                { assert snapshot(
+                    file(process.out.result.get(0).get(1)).name,
+                    process.out.versions_ngsrelate
+                  ).match()
+                }
             )
         }
     }

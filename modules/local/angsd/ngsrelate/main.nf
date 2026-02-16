@@ -11,8 +11,8 @@ process ANGSD_NGSRELATE {
     tuple val(meta), path(vcf)
 
     output:
-    tuple val(meta), path("${prefix}.${suffix}"), emit: plots
-    path "versions.yml",                          emit: versions
+    tuple val(meta), path("${prefix}.${suffix}"), emit: result
+    tuple val("${task.process}"), val('ngsrelate'), eval('echo "2.0"'), topic: versions, emit: versions_ngsrelate
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,10 +28,5 @@ process ANGSD_NGSRELATE {
       -O ${prefix}.${suffix} \\
       ${args} \\
       -p ${task.cpus}
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        ngsrelate: "2.0"
-    END_VERSIONS
     """
 }
