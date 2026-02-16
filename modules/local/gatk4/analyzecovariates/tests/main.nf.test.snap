@@ -9,12 +9,15 @@
                     "test.csv:md5,d0d1c72dbaf4fc5fed04a470a7b9a5c2"
                 ]
             ],
-            "test.pdf"
+            "test.pdf",
+            [
+                "versions.yml:md5,52948d89f224d985e1be9adca5aa2d7b"
+            ]
         ],
+        "timestamp": "2026-02-16T11:32:13.889075497",
         "meta": {
-            "nf-test": "0.9.3",
-            "nextflow": "25.10.3"
-        },
-        "timestamp": "2026-02-11T08:29:00.246514539"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     }
 }

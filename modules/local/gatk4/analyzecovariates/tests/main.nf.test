@@ -29,7 +29,8 @@ nextflow_process {
                 { assert process.success },
                 { assert snapshot(
                     process.out.data,
-                    file(process.out.plots.get(0).get(1)).name
+                    file(process.out.plots.get(0).get(1)).name,
+                    process.out.versions
                   ).match()
                 }
             )
