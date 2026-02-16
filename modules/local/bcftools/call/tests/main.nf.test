@@ -48,7 +48,7 @@ nextflow_process {
                 { assert snapshot(
                     process.out.tbi,
                     file(process.out.vcf.get(0).get(1)).name,
-                    process.out.versions
+                    process.out.versions_bcftools
                   ).match()
                 }
             )

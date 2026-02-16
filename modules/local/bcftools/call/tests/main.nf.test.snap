@@ -11,10 +11,14 @@
             ],
             "test_vcf.vcf.gz",
             [
-                "versions.yml:md5,d6d38666808b8e56107d8d845abf97cb"
+                [
+                    "BCFTOOLS_CALL",
+                    "bcftools",
+                    "1.22"
+                ]
             ]
         ],
-        "timestamp": "2026-02-16T11:11:39.753163389",
+        "timestamp": "2026-02-16T11:48:23.201086544",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"

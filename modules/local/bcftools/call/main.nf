@@ -14,7 +14,7 @@ process BCFTOOLS_CALL {
     tuple val(meta), path("${prefix}.${extension}")    , emit: vcf, optional: true
     tuple val(meta), path("${prefix}.${extension}.tbi"), emit: tbi, optional: true
     tuple val(meta), path("${prefix}.${extension}.csi"), emit: csi, optional: true
-    path "versions.yml"                                , emit: versions
+    tuple val("${task.process}"), val('bcftools'), eval("bcftools --version | sed '1!d; s/^.*bcftools //'"), topic: versions, emit: versions_bcftools
 
     when:
     task.ext.when == null || task.ext.when
@@ -36,10 +36,5 @@ process BCFTOOLS_CALL {
         ${intervalsOpt} \
         ${args} \
         ${vcf}
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        bcftools: \$(bcftools --version 2>&1 | head -n1 | sed 's/^.*bcftools //; s/ .*\$//')
-    END_VERSIONS
     """
 }
