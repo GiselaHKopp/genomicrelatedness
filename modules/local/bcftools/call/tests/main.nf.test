@@ -12,14 +12,32 @@ nextflow_process {
     test("test-bcftools-call") {
         config './nextflow.config'
 
+        setup {
+            run("BCFTOOLS_MPILEUP") {
+                script "modules/local/bcftools/mpileup/main.nf"
+                process {
+                    """
+                    input[0] = [
+                        [ id:'test' ],
+                        [],
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam', checkIfExists: true)
+                    ]
+                    input[1] = [
+                        [ id:'ref' ],
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/genome/genome.fasta', checkIfExists: true)
+                    ]
+                    input[2] = false
+                    """
+                }
+            }
+        }
+
         when {
             process {
                 """
-                input[0] = [
-                    [ id:'test' ],
-                    file(params.modules_testdata_base_path + 'placeholder', checkIfExists: true),
-                    []
-                ]
+                input[0] = BCFTOOLS_MPILEUP.out.vcf.map { meta, vcf_file ->
+                            tuple(meta, vcf_file, [])
+                        }
                 """
             }
         }
@@ -27,7 +45,12 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                { assert snapshot(process.out).match() }
+                { assert snapshot(
+                    process.out.tbi,
+                    file(process.out.vcf.get(0).get(1)).name,
+                    process.out.versions
+                  ).match()
+                }
             )
         }
     }
