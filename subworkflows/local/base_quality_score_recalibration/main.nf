@@ -150,7 +150,6 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
 
     // Run AnalyzeCovariates
     GATK4_ANALYZECOVARIATES(ch_bqsr_tables)
-    versions = versions.mix(GATK4_ANALYZECOVARIATES.out.versions)
 
     emit:
     recalibrated_cram = ch_recalibrated_cram

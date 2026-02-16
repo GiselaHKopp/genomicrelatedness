@@ -9,7 +9,7 @@ nextflow_process {
     tag "gatk4"
     tag "gatk4/analyzecovariates"
 
-    test("test-gatk4-analyzecovariates") {
+    test("test-gatk4-analyzecovariates-two-tables") {
 
         when {
             process {
@@ -30,7 +30,42 @@ nextflow_process {
                 { assert snapshot(
                     process.out.data,
                     file(process.out.plots.get(0).get(1)).name,
-                    process.out.versions
+                    process.out.versions_gatk4
+                  ).match()
+                }
+            )
+        }
+    }
+
+    test("test-gatk4-analyzecovariatest-three-tables") {
+
+        when {
+            process {
+                """
+                def base = params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/gatk/'
+                def t1 = file(base + 'test.baserecalibrator.table',  checkIfExists: true)
+                def t2 = file(base + 'test2.baserecalibrator.table', checkIfExists: true)
+
+                // Create a renamed copy for the duplicate input to avoid naming conflict
+                def t3 = file(base + 'test2.baserecalibrator.table').copyTo('test3.baserecalibrator.table')
+                input[0] = [
+                    [ id:'test' ],
+                    t1,
+                    t2,
+                    t3,
+                    []
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.data,
+                    file(process.out.plots.get(0).get(1)).name,
+                    process.out.versions_gatk4
                   ).match()
                 }
             )

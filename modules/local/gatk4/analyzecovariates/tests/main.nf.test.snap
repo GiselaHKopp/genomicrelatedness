@@ -1,5 +1,30 @@
 {
-    "test-gatk4-analyzecovariates": {
+    "test-gatk4-analyzecovariatest-three-tables": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.csv:md5,41456202535403bf2616522b989a72e1"
+                ]
+            ],
+            "test.pdf",
+            [
+                [
+                    "GATK4_ANALYZECOVARIATES",
+                    "gatk4",
+                    "4.6.2.0"
+                ]
+            ]
+        ],
+        "timestamp": "2026-02-16T14:33:37.291913143",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "test-gatk4-analyzecovariates-two-tables": {
         "content": [
             [
                 [
@@ -11,10 +36,14 @@
             ],
             "test.pdf",
             [
-                "versions.yml:md5,52948d89f224d985e1be9adca5aa2d7b"
+                [
+                    "GATK4_ANALYZECOVARIATES",
+                    "gatk4",
+                    "4.6.2.0"
+                ]
             ]
         ],
-        "timestamp": "2026-02-16T11:32:13.889075497",
+        "timestamp": "2026-02-16T14:32:52.165726317",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
