@@ -21,7 +21,6 @@ workflow CRAM_BASERECALIBRATOR {
     tbi     // channel: [ meta, tbi]
 
     main:
-    versions = channel.empty()
 
     // Run BaseRecalibrator
     GATK4_BASERECALIBRATOR(
@@ -53,7 +52,6 @@ workflow CRAM_BASERECALIBRATOR {
 
     // Only when using intervals
     GATK4_GATHERBQSRREPORTS(ch_table_to_merge.multiple)
-    versions = versions.mix(GATK4_GATHERBQSRREPORTS.out.versions)
 
     // Mix intervals and no_intervals channels together
     table_bqsr = GATK4_GATHERBQSRREPORTS.out.table
@@ -67,5 +65,4 @@ workflow CRAM_BASERECALIBRATOR {
 
     emit:
     table_bqsr
-    versions
 }

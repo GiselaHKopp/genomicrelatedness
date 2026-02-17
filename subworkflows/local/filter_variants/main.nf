@@ -20,9 +20,6 @@ workflow FILTER_VARIANTS {
     tbi     // channel: [ meta, tbi]
 
     main:
-    // Collect software versions and QC reports
-    versions = channel.empty()
-    multiqc_files = channel.empty()
 
     // Filter variants to exclude low-quality calls
     ch_filtered_input = vcf.join(tbi)
@@ -32,7 +29,6 @@ workflow FILTER_VARIANTS {
         }
 
     GATK4_VARIANTFILTRATION(ch_filtered_input, fasta, fai, dict, [[id: 'no_gzi'], []])
-    versions = versions.mix(GATK4_VARIANTFILTRATION.out.versions)
 
     // Select only passing variants
     ch_selected_input = GATK4_VARIANTFILTRATION.out.vcf.join(GATK4_VARIANTFILTRATION.out.tbi)
@@ -41,11 +37,8 @@ workflow FILTER_VARIANTS {
             tuple(new_meta, vcf_filtered, tbi_filtered, [])
         }
     GATK4_SELECTVARIANTS(ch_selected_input)
-    versions = versions.mix(GATK4_SELECTVARIANTS.out.versions)
 
     emit:
     vcf = GATK4_SELECTVARIANTS.out.vcf
     tbi = GATK4_SELECTVARIANTS.out.tbi
-    multiqc_files
-    versions
 }

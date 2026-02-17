@@ -16,11 +16,9 @@ workflow PREPARE_INTERVALS {
     fai // channel: [ meta, fai]
 
     main:
-    versions = channel.empty()
 
     // Build intervals from FASTA index
     BUILD_INTERVALS(fai, [], false)
-    versions = versions.mix(BUILD_INTERVALS.out.versions)
 
     intervals_combined = BUILD_INTERVALS.out.output
     .map { meta, intervals ->
@@ -71,5 +69,4 @@ workflow PREPARE_INTERVALS {
     emit:
     intervals_combined  // [[id:'reference_fasta', reference_fasta: 'reference_fasta']], interval.bed, number_of_intervals]
     intervals_split     // [[id:'interval_name', interval_name:'I001', interval_idx: 001,reference_fasta: 'reference_fasta'], interval.bed, number_of_intervals]
-    versions
 }

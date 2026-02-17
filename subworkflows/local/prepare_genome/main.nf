@@ -17,22 +17,22 @@ workflow PREPARE_GENOME {
     fasta   // channel: [ meta, fasta]
 
     main:
-    versions = channel.empty()
 
     // Build the BWA index from the provided FASTA
     BWAMEM2_INDEX(fasta)
-    versions = versions.mix(BWAMEM2_INDEX.out.versions)
 
     // Build the sequence dictionary
     GATK4_CREATESEQUENCEDICTIONARY(fasta)
-    versions = versions.mix(GATK4_CREATESEQUENCEDICTIONARY.out.versions)
+
+    // Build reference tuple for SAMTOOLS_FAIDX input signature
+    ch_reference = fasta
+        .map { meta, fasta_file -> tuple(meta, fasta_file, []) }
 
     // Build the FASTA index (fai)
-    SAMTOOLS_FAIDX(fasta, [[id: 'no_fai'], []], false)
+    SAMTOOLS_FAIDX(ch_reference, false)
 
     emit:
     bwamem2_index   = BWAMEM2_INDEX.out.index.collect()
     dict            = GATK4_CREATESEQUENCEDICTIONARY.out.dict.collect()
     fasta_fai       = SAMTOOLS_FAIDX.out.fai.collect()
-    versions
 }

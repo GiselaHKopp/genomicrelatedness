@@ -63,7 +63,6 @@ workflow CALL_VARIANTS_GATK {
 
     // Run GATK HaplotypeCaller
     GATK4_HAPLOTYPECALLER(ch_haplotypecaller_input, fasta, fai, dict, [[id: 'no_dbsnp'], []], [[id: 'no_dbsnp_tbi'], []])
-    versions = versions.mix(GATK4_HAPLOTYPECALLER.out.versions)
 
     // Prepare for GenomicsDBImport
     ch_gvcfs = GATK4_HAPLOTYPECALLER.out.vcf
@@ -91,13 +90,10 @@ workflow CALL_VARIANTS_GATK {
 
     // Run GATK GenomicsDBImport
     GATK4_GENOMICSDBIMPORT(ch_gdb_input, false, false, false)
-    versions = versions.mix(GATK4_GENOMICSDBIMPORT.out.versions)
 
     // Run GATK GenotypeGVCFs
     ch_gtp_input = GATK4_GENOMICSDBIMPORT.out.genomicsdb.map { meta, genomicsdb -> tuple(meta, genomicsdb, [], [], []) }
     GATK4_GENOTYPEGVCFS(ch_gtp_input, fasta, fai, dict, [[id: 'no_dbsnp'], []], [[id: 'no_dbsnp_tbi'], []])
-    versions = versions.mix(GATK4_GENOTYPEGVCFS.out.versions)
-
 
     // Sort each interval VCF before merging
     ch_vcfs = GATK4_GENOTYPEGVCFS.out.vcf
@@ -129,7 +125,6 @@ workflow CALL_VARIANTS_GATK {
 
     // Merge all intervals into one VCF
     GATK4_MERGEVCFS(ch_merge_vcfs, dict)
-    versions = versions.mix(GATK4_MERGEVCFS.out.versions)
 
     // Run BCFtools stats on merged VCF
     ch_merged_vcf_tbi = GATK4_MERGEVCFS.out.vcf

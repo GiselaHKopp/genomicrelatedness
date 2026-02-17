@@ -65,7 +65,6 @@ workflow GENOMICRELATEDNESS {
     // SUBWORKFLOW: PREPARE_GENOME
     //
     PREPARE_GENOME(ch_fasta)
-    ch_versions = ch_versions.mix(PREPARE_GENOME.out.versions)
 
     // Gather built indices or get them from the params
     ch_dict = params.dict
@@ -83,12 +82,11 @@ workflow GENOMICRELATEDNESS {
     //
     PREPARE_INTERVALS(ch_fasta_fai)
     ch_intervals_split = PREPARE_INTERVALS.out.intervals_split
-    ch_versions = ch_versions.mix(PREPARE_INTERVALS.out.versions)
 
     //
     // SUBWORKFLOW: PREPROCESS
     //
-    ch_preprocessed = PREPROCESS(samplesheet, ch_fasta, ch_bwamem2, ch_fasta_fai)
+    ch_preprocessed = PREPROCESS(samplesheet, ch_fasta, ch_fasta_fai, ch_bwamem2)
     ch_cram = ch_preprocessed.cram
     ch_crai = ch_preprocessed.crai
     ch_versions = ch_versions.mix(ch_preprocessed.versions)
@@ -194,8 +192,6 @@ workflow GENOMICRELATEDNESS {
         ch_vcf,
         ch_tbi
     )
-    ch_versions = ch_versions.mix(FILTER_VARIANTS.out.versions)
-    ch_multiqc_files = ch_multiqc_files.mix(FILTER_VARIANTS.out.multiqc_files)
     ch_vcf = (params.hard_filter_variants ? FILTER_VARIANTS.out.vcf : ch_vcf).collect()
     ch_tbi = (params.hard_filter_variants ? FILTER_VARIANTS.out.tbi : ch_tbi).collect()
 

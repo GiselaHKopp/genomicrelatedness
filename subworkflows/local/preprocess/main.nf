@@ -24,8 +24,8 @@ workflow PREPROCESS {
     take:
     samplesheet // channel: [ meta, list(fastq) ]
     fasta       // channel: [ meta, fasta]
-    bwamem2     // channel: [ meta, bwamem2 ]
     fai         // channel: [ meta, fai]
+    bwamem2     // channel: [ meta, bwamem2 ]
 
     main:
     versions = channel.empty()
@@ -41,7 +41,6 @@ workflow PREPROCESS {
 
     // Decompress SPRING to FASTQ pairs
     SPRING_DECOMPRESS(ch_input_branches.spring, false)
-    versions = versions.mix(SPRING_DECOMPRESS.out.versions)
 
     // Merge with normal FASTQs into one unified channel
     merged_fastqs = ch_input_branches.fastq.mix(SPRING_DECOMPRESS.out.fastq)
@@ -54,7 +53,6 @@ workflow PREPROCESS {
 
     // Map to reference
     BWAMEM2_MEM(FASTP.out.reads, bwamem2, fasta, true)
-    versions = versions.mix(BWAMEM2_MEM.out.versions)
     bam = BWAMEM2_MEM.out.bam.mix(ch_input_branches.bam)
 
     // Add read groups
@@ -69,12 +67,14 @@ workflow PREPROCESS {
                             [merged_meta, bams]
                         }
 
+    // Build reference tuple for SAMTOOLS_MERGE input signature
+    ch_merge_reference = fasta.join(fai)
+        .map { meta, fasta_file, fai_file -> tuple(meta, fasta_file, fai_file, []) }
+
     // Merge BAMs per-sample
     SAMTOOLS_MERGE(
         ch_bam_rg_added,
-        fasta,
-        fai,
-        [[id: 'no_gzi'],[]]
+        ch_merge_reference
     )
 
     merged_bam = SAMTOOLS_MERGE.out.bam
@@ -85,7 +85,6 @@ workflow PREPROCESS {
 
     // Mark duplicates
     GATK4_MARKDUPLICATES(merged_bam, fasta.map { tuple -> tuple[1] }, fai.map{ tuple -> tuple[1] })
-    versions = versions.mix(GATK4_MARKDUPLICATES.out.versions)
     multiqc_files = multiqc_files.mix(GATK4_MARKDUPLICATES.out.metrics.map { tuple -> tuple[1] })
     ch_cram = GATK4_MARKDUPLICATES.out.cram
         .mix(ch_input_branches.cram)
@@ -97,7 +96,6 @@ workflow PREPROCESS {
 
     // Compute index
     SAMTOOLS_INDEX(ch_input_branches.cram)
-    versions = versions.mix(SAMTOOLS_INDEX.out.versions)
     ch_crai = GATK4_MARKDUPLICATES.out.crai
         .mix(SAMTOOLS_INDEX.out.crai)
         .map { meta, crai_file ->
@@ -112,7 +110,6 @@ workflow PREPROCESS {
     multiqc_files = multiqc_files.mix(PRESEQ_CCURVE.out.c_curve.map { _meta, file -> file }).mix(PRESEQ_CCURVE.out.log.map{ _meta, file -> file })
 
     PRESEQ_LCEXTRAP(ch_cram)
-    versions = versions.mix(PRESEQ_LCEXTRAP.out.versions)
     multiqc_files = multiqc_files.mix(PRESEQ_LCEXTRAP.out.lc_extrap.map { _meta, file -> file }).mix(PRESEQ_LCEXTRAP.out.log.map{ _meta, file -> file })
 
     // Samtools stats on final CRAMs

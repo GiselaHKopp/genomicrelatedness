@@ -44,7 +44,6 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
 
     // Run BaseRecalibrator
     CRAM_BASERECALIBRATOR(fasta, fai, dict, combined_cram_crai_intervals, vcf, tbi)
-    versions = versions.mix(CRAM_BASERECALIBRATOR.out.versions)
 
     // Combine CRAM with BQSR table
     ch_cram_with_table = combined_cram_crai_intervals
@@ -78,12 +77,14 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
             multiple: tuple[0].num_intervals > 1
         }
 
+    // Build reference tuple for SAMTOOLS_MERGE input signature
+    ch_merge_reference = fasta.join(fai)
+        .map { meta, fasta_file, fai_file -> tuple(meta, fasta_file, fai_file, []) }
+
     // Merge CRAMs if multiple intervals
     SAMTOOLS_MERGE(
         ch_cram_branch.multiple,
-        fasta,
-        fai,
-        [[id: 'no_gzi'],[]]
+        ch_merge_reference
     )
 
     // Mix intervals and no_intervals channels together
@@ -94,7 +95,6 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
 
     // Index CRAM
     SAMTOOLS_INDEX(ch_recalibrated_cram)
-    versions = versions.mix(SAMTOOLS_INDEX.out.versions)
 
     // Remove 'recalibrated' from ID
     ch_recalibrated_cram = ch_recalibrated_cram
@@ -128,7 +128,6 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
         vcf,
         tbi
     )
-    versions = versions.mix(CRAM_BASERECALIBRATOR_SECOND_PASS.out.versions)
 
     ch_bqsr_first = CRAM_BASERECALIBRATOR.out.table_bqsr
         .map { meta, table ->
