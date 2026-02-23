@@ -47,7 +47,7 @@
                     },
                     "bwamem2/mem": {
                         "branch": "master",
-                        "git_sha": "5dd46a36fca68d6ad1a6b22ec47adc8c6863717d",
+                        "git_sha": "8325a8155a77a336a613a504b8e4d6cea7a2344a",
                         "installed_by": ["modules"]
                     },
                     "fastp": {
@@ -137,7 +137,7 @@
                     },
                     "preseq/ccurve": {
                         "branch": "master",
-                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+                        "git_sha": "f84336b7fa91a65aa61d215b8c109fbb8e4b4ac6",
                         "installed_by": ["modules"]
                     },
                     "preseq/lcextrap": {
