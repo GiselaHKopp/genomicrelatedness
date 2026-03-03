@@ -3,10 +3,10 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { GATK4_ANALYZECOVARIATES                    } from '../../../modules/local/gatk4/analyzecovariates'
-include { GATK4_APPLYBQSR                            } from '../../../modules/nf-core/gatk4/applybqsr'
-include { SAMTOOLS_INDEX                             } from '../../../modules/nf-core/samtools/index/main'
-include { SAMTOOLS_MERGE                             } from '../../../modules/nf-core/samtools/merge/main'
+include { GATK4_ANALYZECOVARIATES } from '../../../modules/nf-core/gatk4/analyzecovariates'
+include { GATK4_APPLYBQSR         } from '../../../modules/nf-core/gatk4/applybqsr'
+include { SAMTOOLS_INDEX          } from '../../../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_MERGE          } from '../../../modules/nf-core/samtools/merge/main'
 
 include { COMBINE_CRAM_CRAI_INTERVALS                                            } from '../combine_cram_crai_intervals'
 include { COMBINE_CRAM_CRAI_INTERVALS as COMBINE_CRAM_CRAI_INTERVALS_SECOND_PASS } from '../combine_cram_crai_intervals'

@@ -60,6 +60,11 @@
                         "git_sha": "69723e41ae619a00f0333b8063b2dc6d16f28517",
                         "installed_by": ["modules"]
                     },
+                    "gatk4/analyzecovariates": {
+                        "branch": "master",
+                        "git_sha": "5a80d76e557e7fd2e78da8b6b644632dbc636924",
+                        "installed_by": ["modules"]
+                    },
                     "gatk4/applybqsr": {
                         "branch": "master",
                         "git_sha": "69723e41ae619a00f0333b8063b2dc6d16f28517",

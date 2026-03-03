@@ -1,5 +1,5 @@
 process GATK4_ANALYZECOVARIATES {
-    tag "${meta.id}"
+    tag "$meta.id"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
@@ -8,20 +8,19 @@ process GATK4_ANALYZECOVARIATES {
         : 'community.wave.seqera.io/library/gatk4_gcnvkernel:edb12e4f0bf02cd3'}"
 
     input:
-    tuple val(meta), path(before_table), path(after_table), path(table3)
+    tuple val(meta), path(before_table), path(after_table), path(additional_table)
 
     output:
-    tuple val(meta), path("${meta.id}.pdf"), emit: plots
-    tuple val(meta), path("${meta.id}.csv"), emit: data
+    tuple val(meta), path("*.pdf"), emit: plots
+    tuple val(meta), path("*.csv"), emit: data
     tuple val("${task.process}"), val('gatk4'), eval("gatk --version | sed -n '/GATK.*v/s/.*v//p'"), topic: versions, emit: versions_gatk4
-
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
-    def third_table = table3 ? "-bqsr ${table3}" : ""
+    def third_table = additional_table ? "-bqsr ${additional_table}" : ""
 
     """
     gatk AnalyzeCovariates \\
@@ -34,7 +33,11 @@ process GATK4_ANALYZECOVARIATES {
     """
 
     stub:
+    def args = task.ext.args ?: ''
+
     """
+    echo $args
+
     touch ${meta.id}.csv
     touch ${meta.id}.pdf
     """

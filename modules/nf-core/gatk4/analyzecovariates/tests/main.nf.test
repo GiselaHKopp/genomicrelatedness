@@ -5,11 +5,11 @@ nextflow_process {
     process "GATK4_ANALYZECOVARIATES"
 
     tag "modules"
-    tag "modules_local"
+    tag "modules_nfcore"
     tag "gatk4"
     tag "gatk4/analyzecovariates"
 
-    test("test-gatk4-analyzecovariates-two-tables") {
+    test("homo_sapiens-dual-input - table") {
 
         when {
             process {
@@ -37,7 +37,7 @@ nextflow_process {
         }
     }
 
-    test("test-gatk4-analyzecovariatest-three-tables") {
+    test("homo_sapiens-triple-input - table") {
 
         when {
             process {
@@ -71,4 +71,31 @@ nextflow_process {
             )
         }
     }
+
+    test("homo_sapiens - table - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/gatk/test.baserecalibrator.table', checkIfExists: true),
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/gatk/test2.baserecalibrator.table', checkIfExists: true),
+                    []
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
 }
