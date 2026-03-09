@@ -47,7 +47,7 @@
                     },
                     "fastp": {
                         "branch": "master",
-                        "git_sha": "a331ecfd1aa48b2b2298aab23bb4516c800e410b",
+                        "git_sha": "1fb5a73bce8e4ac7079b0a9461b23d11e877ad14",
                         "installed_by": ["modules"]
                     },
                     "gatk4/addorreplacereadgroups": {
