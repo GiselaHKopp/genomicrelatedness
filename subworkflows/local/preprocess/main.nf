@@ -71,9 +71,13 @@ workflow PREPROCESS {
     ch_merge_reference = fasta.join(fai)
         .map { meta, fasta_file, fai_file -> tuple(meta, fasta_file, fai_file, []) }
 
+    // Build input for samtools/merge
+    merge_input = ch_bam_rg_added
+        .map { meta, input_files -> tuple(meta, input_files, [])}
+
     // Merge BAMs per-sample
     SAMTOOLS_MERGE(
-        ch_bam_rg_added,
+        merge_input,
         ch_merge_reference
     )
 

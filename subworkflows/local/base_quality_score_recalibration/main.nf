@@ -81,9 +81,13 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
     ch_merge_reference = fasta.join(fai)
         .map { meta, fasta_file, fai_file -> tuple(meta, fasta_file, fai_file, []) }
 
+    // Build input for samtools/merge
+    merge_input = ch_cram_branch.multiple
+        .map { meta, input_files -> tuple(meta, input_files, [])}
+
     // Merge CRAMs if multiple intervals
     SAMTOOLS_MERGE(
-        ch_cram_branch.multiple,
+        merge_input,
         ch_merge_reference
     )
 
