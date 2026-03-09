@@ -48,10 +48,12 @@ workflow CALL_VARIANTS_BCFTOOLS {
         tuple( meta + [variantcaller: 'bcftools'], crai_file ) }
         .set { crai }
 
+    // Build reference tuple for SAMTOOLS_MERGE input signature
+    ch_reference = fasta.join(fai)
+
     // Convert CRAM/CAI to BAM/BAI
     ch_cram_crai_to_convert = cram.join(crai)
-    SAMTOOLS_CONVERT(ch_cram_crai_to_convert, fasta, fai)
-    versions = versions.mix(SAMTOOLS_CONVERT.out.versions)
+    SAMTOOLS_CONVERT(ch_cram_crai_to_convert, ch_reference)
 
     // Collect a list of all BAM files
     ch_bams = SAMTOOLS_CONVERT.out.bam
@@ -87,7 +89,6 @@ workflow CALL_VARIANTS_BCFTOOLS {
 
     // Run Bcftools call
     BCFTOOLS_CALL(ch_call_input)
-    versions = versions.mix(BCFTOOLS_CALL.out.versions)
 
     vcf_list = BCFTOOLS_CALL.out.vcf
         .map { meta, vcf_file ->
@@ -110,7 +111,6 @@ workflow CALL_VARIANTS_BCFTOOLS {
 
     // Run Bcftools concat
     BCFTOOLS_CONCAT(ch_concat_input)
-    versions = versions.mix(BCFTOOLS_CONCAT.out.versions)
 
     emit:
     vcf = BCFTOOLS_CONCAT.out.vcf

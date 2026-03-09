@@ -3,10 +3,10 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { GATK4_ANALYZECOVARIATES                    } from '../../../modules/local/gatk4/analyzecovariates'
-include { GATK4_APPLYBQSR                            } from '../../../modules/nf-core/gatk4/applybqsr'
-include { SAMTOOLS_INDEX                             } from '../../../modules/nf-core/samtools/index/main'
-include { SAMTOOLS_MERGE                             } from '../../../modules/nf-core/samtools/merge/main'
+include { GATK4_ANALYZECOVARIATES } from '../../../modules/nf-core/gatk4/analyzecovariates'
+include { GATK4_APPLYBQSR         } from '../../../modules/nf-core/gatk4/applybqsr'
+include { SAMTOOLS_INDEX          } from '../../../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_MERGE          } from '../../../modules/nf-core/samtools/merge/main'
 
 include { COMBINE_CRAM_CRAI_INTERVALS                                            } from '../combine_cram_crai_intervals'
 include { COMBINE_CRAM_CRAI_INTERVALS as COMBINE_CRAM_CRAI_INTERVALS_SECOND_PASS } from '../combine_cram_crai_intervals'
@@ -44,7 +44,6 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
 
     // Run BaseRecalibrator
     CRAM_BASERECALIBRATOR(fasta, fai, dict, combined_cram_crai_intervals, vcf, tbi)
-    versions = versions.mix(CRAM_BASERECALIBRATOR.out.versions)
 
     // Combine CRAM with BQSR table
     ch_cram_with_table = combined_cram_crai_intervals
@@ -64,7 +63,6 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
         fai.map { _meta, fai_file -> [fai_file] },
         dict.map { _meta, dict_file -> [dict_file] },
     )
-    versions = versions.mix(GATK4_APPLYBQSR.out.versions)
 
     // Merge recalibrated CRAMs if needed
     ch_cram_branch = GATK4_APPLYBQSR.out.cram
@@ -79,12 +77,18 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
             multiple: tuple[0].num_intervals > 1
         }
 
+    // Build reference tuple for SAMTOOLS_MERGE input signature
+    ch_merge_reference = fasta.join(fai)
+        .map { meta, fasta_file, fai_file -> tuple(meta, fasta_file, fai_file, []) }
+
+    // Build input for samtools/merge
+    merge_input = ch_cram_branch.multiple
+        .map { meta, input_files -> tuple(meta, input_files, [])}
+
     // Merge CRAMs if multiple intervals
     SAMTOOLS_MERGE(
-        ch_cram_branch.multiple,
-        fasta,
-        fai,
-        [[id: 'no_gzi'],[]]
+        merge_input,
+        ch_merge_reference
     )
 
     // Mix intervals and no_intervals channels together
@@ -95,7 +99,6 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
 
     // Index CRAM
     SAMTOOLS_INDEX(ch_recalibrated_cram)
-    versions = versions.mix(SAMTOOLS_INDEX.out.versions)
 
     // Remove 'recalibrated' from ID
     ch_recalibrated_cram = ch_recalibrated_cram
@@ -129,18 +132,17 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
         vcf,
         tbi
     )
-    versions = versions.mix(CRAM_BASERECALIBRATOR_SECOND_PASS.out.versions)
 
     ch_bqsr_first = CRAM_BASERECALIBRATOR.out.table_bqsr
         .map { meta, table ->
             def new_id = (meta.sample ?: meta.id.split('_')[0]) + (meta.bootstrapping_round ? "_${meta.bootstrapping_round}" : "")
-            def new_meta = meta - meta.subMap('sample', 'RGID', 'RGLB', 'RGID', 'RGPL', 'RGPU', 'RGSM', 'single_end') + [id: new_id] + [ pass: 2 ]
+            def new_meta = meta - meta.subMap('sample', 'RGSM', 'single_end') + [id: new_id] + [ pass: 2 ]
             tuple(new_meta, table)
         }
     ch_bqsr_second = CRAM_BASERECALIBRATOR_SECOND_PASS.out.table_bqsr
         .map { meta, table ->
             def new_id = (meta.sample ?: meta.id.split('_')[0]) + (meta.bootstrapping_round ? "_${meta.bootstrapping_round}" : "")
-            def new_meta = meta - meta.subMap('sample', 'RGID', 'RGLB', 'RGID', 'RGPL', 'RGPU', 'RGSM', 'single_end') + [id: new_id]
+            def new_meta = meta - meta.subMap('sample', 'RGSM', 'single_end') + [id: new_id]
             tuple(new_meta, table)
         }
     ch_bqsr_tables = ch_bqsr_first
@@ -151,7 +153,6 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
 
     // Run AnalyzeCovariates
     GATK4_ANALYZECOVARIATES(ch_bqsr_tables)
-    versions = versions.mix(GATK4_ANALYZECOVARIATES.out.versions)
 
     emit:
     recalibrated_cram = ch_recalibrated_cram

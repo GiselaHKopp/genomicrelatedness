@@ -63,13 +63,12 @@ workflow CALL_VARIANTS_GATK {
 
     // Run GATK HaplotypeCaller
     GATK4_HAPLOTYPECALLER(ch_haplotypecaller_input, fasta, fai, dict, [[id: 'no_dbsnp'], []], [[id: 'no_dbsnp_tbi'], []])
-    versions = versions.mix(GATK4_HAPLOTYPECALLER.out.versions)
 
     // Prepare for GenomicsDBImport
     ch_gvcfs = GATK4_HAPLOTYPECALLER.out.vcf
         .join(GATK4_HAPLOTYPECALLER.out.tbi)
         .map { meta, vcf, tbi ->
-            def key = meta + [ id: meta.interval_name ] - meta.subMap('RGID', 'RGPU', 'RGLB', 'RGSM', 'RGPL', 'sample', 'single_end', 'num_intervals')
+            def key = meta + [ id: meta.interval_name ] - meta.subMap('RGSM', 'sample', 'single_end', 'num_intervals')
             tuple(key, vcf, tbi)
         }
 
@@ -91,13 +90,10 @@ workflow CALL_VARIANTS_GATK {
 
     // Run GATK GenomicsDBImport
     GATK4_GENOMICSDBIMPORT(ch_gdb_input, false, false, false)
-    versions = versions.mix(GATK4_GENOMICSDBIMPORT.out.versions)
 
     // Run GATK GenotypeGVCFs
     ch_gtp_input = GATK4_GENOMICSDBIMPORT.out.genomicsdb.map { meta, genomicsdb -> tuple(meta, genomicsdb, [], [], []) }
     GATK4_GENOTYPEGVCFS(ch_gtp_input, fasta, fai, dict, [[id: 'no_dbsnp'], []], [[id: 'no_dbsnp_tbi'], []])
-    versions = versions.mix(GATK4_GENOTYPEGVCFS.out.versions)
-
 
     // Sort each interval VCF before merging
     ch_vcfs = GATK4_GENOTYPEGVCFS.out.vcf
@@ -107,7 +103,6 @@ workflow CALL_VARIANTS_GATK {
         }
 
     BCFTOOLS_SORT(ch_vcfs)
-    versions = versions.mix(BCFTOOLS_SORT.out.versions)
 
     ch_merge_vcfs = BCFTOOLS_SORT.out.vcf
             .toSortedList { a, b -> a[0].interval_idx <=> b[0].interval_idx }
@@ -130,7 +125,6 @@ workflow CALL_VARIANTS_GATK {
 
     // Merge all intervals into one VCF
     GATK4_MERGEVCFS(ch_merge_vcfs, dict)
-    versions = versions.mix(GATK4_MERGEVCFS.out.versions)
 
     // Run BCFtools stats on merged VCF
     ch_merged_vcf_tbi = GATK4_MERGEVCFS.out.vcf
@@ -146,7 +140,6 @@ workflow CALL_VARIANTS_GATK {
         fasta
     )
     multiqc_files = multiqc_files.mix(BCFTOOLS_STATS.out.stats.map { tuple -> tuple[1] })
-    versions = versions.mix(BCFTOOLS_STATS.out.versions)
 
     emit:
     vcf = GATK4_MERGEVCFS.out.vcf

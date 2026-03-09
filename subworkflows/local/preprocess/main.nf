@@ -24,8 +24,8 @@ workflow PREPROCESS {
     take:
     samplesheet // channel: [ meta, list(fastq) ]
     fasta       // channel: [ meta, fasta]
-    bwamem2     // channel: [ meta, bwamem2 ]
     fai         // channel: [ meta, fai]
+    bwamem2     // channel: [ meta, bwamem2 ]
 
     main:
     versions = channel.empty()
@@ -41,42 +41,44 @@ workflow PREPROCESS {
 
     // Decompress SPRING to FASTQ pairs
     SPRING_DECOMPRESS(ch_input_branches.spring, false)
-    versions = versions.mix(SPRING_DECOMPRESS.out.versions)
 
     // Merge with normal FASTQs into one unified channel
     merged_fastqs = ch_input_branches.fastq.mix(SPRING_DECOMPRESS.out.fastq)
+
     // Trim and QC with FASTP
     ch_fastp_input = merged_fastqs.map { meta, reads -> tuple(meta, reads, []) }
     FASTP(ch_fastp_input, false, false, false)
-    versions = versions.mix(FASTP.out.versions)
     multiqc_files = multiqc_files.mix(FASTP.out.json.collect{ _meta, json -> json })
     multiqc_files = multiqc_files.mix(FASTP.out.html.collect{ _meta, html -> html })
 
     // Map to reference
     BWAMEM2_MEM(FASTP.out.reads, bwamem2, fasta, true)
-    versions = versions.mix(BWAMEM2_MEM.out.versions)
     bam = BWAMEM2_MEM.out.bam.mix(ch_input_branches.bam)
 
     // Add read groups
     GATK4_ADDORREPLACEREADGROUPS(bam, fasta, fai)
-    versions = versions.mix(GATK4_ADDORREPLACEREADGROUPS.out.versions)
-
     ch_bam_rg_added = GATK4_ADDORREPLACEREADGROUPS.out.bam
                         .map { meta, bam_file -> tuple(meta.RGSM, meta, bam_file) }
                         .groupTuple()
                         .map { _rgsm, metas, bams ->
                             // Take the first meta and remove RGPU
                             def meta = metas[0]
-                            def merged_meta = meta - meta.subMap('RGPU') + [id: meta.RGSM + '_merged']
+                            def merged_meta = meta + [id: meta.RGSM + '_merged']
                             [merged_meta, bams]
                         }
 
+    // Build reference tuple for SAMTOOLS_MERGE input signature
+    ch_merge_reference = fasta.join(fai)
+        .map { meta, fasta_file, fai_file -> tuple(meta, fasta_file, fai_file, []) }
+
+    // Build input for samtools/merge
+    merge_input = ch_bam_rg_added
+        .map { meta, input_files -> tuple(meta, input_files, [])}
+
     // Merge BAMs per-sample
     SAMTOOLS_MERGE(
-        ch_bam_rg_added,
-        fasta,
-        fai,
-        [[id: 'no_gzi'],[]]
+        merge_input,
+        ch_merge_reference
     )
 
     merged_bam = SAMTOOLS_MERGE.out.bam
@@ -87,14 +89,24 @@ workflow PREPROCESS {
 
     // Mark duplicates
     GATK4_MARKDUPLICATES(merged_bam, fasta.map { tuple -> tuple[1] }, fai.map{ tuple -> tuple[1] })
-    versions = versions.mix(GATK4_MARKDUPLICATES.out.versions)
     multiqc_files = multiqc_files.mix(GATK4_MARKDUPLICATES.out.metrics.map { tuple -> tuple[1] })
-    ch_cram = GATK4_MARKDUPLICATES.out.cram.mix(ch_input_branches.cram)
+    ch_cram = GATK4_MARKDUPLICATES.out.cram
+        .mix(ch_input_branches.cram)
+        .map { meta, cram_file ->
+            def norm_meta = meta - meta.subMap('RGID', 'RGPU', 'RGPL', 'RGLB') + [ id: meta.RGSM ]
+
+            tuple(norm_meta, cram_file)
+        }
 
     // Compute index
     SAMTOOLS_INDEX(ch_input_branches.cram)
-    versions = versions.mix(SAMTOOLS_INDEX.out.versions)
-    ch_crai = GATK4_MARKDUPLICATES.out.crai.mix(SAMTOOLS_INDEX.out.crai)
+    ch_crai = GATK4_MARKDUPLICATES.out.crai
+        .mix(SAMTOOLS_INDEX.out.crai)
+        .map { meta, crai_file ->
+            def norm_meta = meta - meta.subMap('RGID', 'RGPU', 'RGPL', 'RGLB') + [ id: meta.RGSM ]
+
+            tuple(norm_meta, crai_file)
+        }
 
     // Preseq analyses
     PRESEQ_CCURVE(ch_cram)
@@ -102,7 +114,6 @@ workflow PREPROCESS {
     multiqc_files = multiqc_files.mix(PRESEQ_CCURVE.out.c_curve.map { _meta, file -> file }).mix(PRESEQ_CCURVE.out.log.map{ _meta, file -> file })
 
     PRESEQ_LCEXTRAP(ch_cram)
-    versions = versions.mix(PRESEQ_LCEXTRAP.out.versions)
     multiqc_files = multiqc_files.mix(PRESEQ_LCEXTRAP.out.lc_extrap.map { _meta, file -> file }).mix(PRESEQ_LCEXTRAP.out.log.map{ _meta, file -> file })
 
     // Samtools stats on final CRAMs

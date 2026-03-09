@@ -9,8 +9,9 @@ include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pi
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_genomicrelatedness_pipeline'
 
-include { BCFTOOLS_INDEX                                   } from '../modules/nf-core/bcftools/index/main'
 include { ANGSD_NGSRELATE                                  } from '../modules/local/angsd/ngsrelate/main'
+include { BCFTOOLS_INDEX                                   } from '../modules/nf-core/bcftools/index/main'
+include { GUNZIP                                           } from '../modules/nf-core/gunzip/main'
 
 include { BASE_QUALITY_SCORE_RECALIBRATION                 } from '../subworkflows/local/base_quality_score_recalibration'
 include { BOOTSTRAP_VARIANT_SET as BOOTSTRAP_VARIANT_SET_1 } from '../subworkflows/local/bootstrap_variant_set'
@@ -22,8 +23,6 @@ include { FILTER_VARIANTS                                  } from '../subworkflo
 include { PREPARE_GENOME                                   } from '../subworkflows/local/prepare_genome'
 include { PREPARE_INTERVALS                                } from '../subworkflows/local/prepare_intervals'
 include { PREPROCESS                                       } from '../subworkflows/local/preprocess'
-include { RELATEDNESS_READ                                 } from '../subworkflows/local/relatedness_read'
-include { RELATEDNESS_BREADR                               } from '../subworkflows/local/relatedness_breadr'
 include { VCF_INTERSECTION_THINNING                        } from '../subworkflows/local/vcf_intersection_thinning'
 
 
@@ -42,9 +41,22 @@ workflow GENOMICRELATEDNESS {
     ch_versions = channel.empty()
     ch_multiqc_files = channel.empty()
 
+    // Unzip gzipped fasta if provided, otherwise create an empty channel for the downstream processes to consume
+    ch_fasta_gzipped = params.fasta
+        ? params.fasta.endsWith('.gz')
+            ? channel.fromPath(params.fasta)
+                .map { f -> [ [id: f.baseName], f ] }
+                .collect()
+            : channel.empty()
+        : channel.empty()
+
+    GUNZIP(ch_fasta_gzipped)
+
     // Define reference genome and index
     ch_fasta = params.fasta
-        ? channel.fromPath(params.fasta)
+        ? params.fasta.endsWith('.gz')
+            ? GUNZIP.out.gunzip
+        : channel.fromPath(params.fasta)
             .map { f -> [ [id: f.baseName], f ] }
             .collect()
         : channel.empty()
@@ -53,7 +65,6 @@ workflow GENOMICRELATEDNESS {
     // SUBWORKFLOW: PREPARE_GENOME
     //
     PREPARE_GENOME(ch_fasta)
-    ch_versions = ch_versions.mix(PREPARE_GENOME.out.versions)
 
     // Gather built indices or get them from the params
     ch_dict = params.dict
@@ -71,12 +82,11 @@ workflow GENOMICRELATEDNESS {
     //
     PREPARE_INTERVALS(ch_fasta_fai)
     ch_intervals_split = PREPARE_INTERVALS.out.intervals_split
-    ch_versions = ch_versions.mix(PREPARE_INTERVALS.out.versions)
 
     //
     // SUBWORKFLOW: PREPROCESS
     //
-    ch_preprocessed = PREPROCESS(samplesheet, ch_fasta, ch_bwamem2, ch_fasta_fai)
+    ch_preprocessed = PREPROCESS(samplesheet, ch_fasta, ch_fasta_fai, ch_bwamem2)
     ch_cram = ch_preprocessed.cram
     ch_crai = ch_preprocessed.crai
     ch_versions = ch_versions.mix(ch_preprocessed.versions)
@@ -182,8 +192,6 @@ workflow GENOMICRELATEDNESS {
         ch_vcf,
         ch_tbi
     )
-    ch_versions = ch_versions.mix(FILTER_VARIANTS.out.versions)
-    ch_multiqc_files = ch_multiqc_files.mix(FILTER_VARIANTS.out.multiqc_files)
     ch_vcf = (params.hard_filter_variants ? FILTER_VARIANTS.out.vcf : ch_vcf).collect()
     ch_tbi = (params.hard_filter_variants ? FILTER_VARIANTS.out.tbi : ch_tbi).collect()
 
@@ -246,22 +254,9 @@ workflow GENOMICRELATEDNESS {
     ch_versions = ch_versions.mix(VCF_INTERSECTION_THINNING.out.versions)
 
     //
-    // SUBWORKFLOW: RELATEDNESS_BREADR
-    //
-    RELATEDNESS_BREADR(VCF_INTERSECTION_THINNING.out.intersection)
-    ch_versions = ch_versions.mix(RELATEDNESS_BREADR.out.versions)
-
-    //
-    // SUBWORKFLOW: RELATEDNESS_READ
-    //
-    RELATEDNESS_READ(VCF_INTERSECTION_THINNING.out.intersection)
-    ch_versions = ch_versions.mix(RELATEDNESS_READ.out.versions)
-
-    //
     // MODULE: ANGSD_NGSRELATE
     //
     ANGSD_NGSRELATE(VCF_INTERSECTION_THINNING.out.intersection)
-    ch_versions = ch_versions.mix(ANGSD_NGSRELATE.out.versions)
 
     //
     // Collate and save software versions

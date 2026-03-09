@@ -1,0 +1,103 @@
+{
+    "test-prepare-intervals": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test",
+                            "reference_fasta": "test"
+                        },
+                        "test.bed:md5,47b2722aa24d21c0ee0dc2b2f39427a5",
+                        2
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "I1",
+                            "interval_name": "I1",
+                            "interval_idx": 1,
+                            "reference_fasta": "test"
+                        },
+                        "interval_1.bed:md5,a4c4f9f247d4cfc2c2af5fd74c13efce",
+                        3
+                    ],
+                    [
+                        {
+                            "id": "I2",
+                            "interval_name": "I2",
+                            "interval_idx": 2,
+                            "reference_fasta": "test"
+                        },
+                        "interval_2.bed:md5,fc9d35f02d3a3cde40ede37cdc91bfc1",
+                        3
+                    ],
+                    [
+                        {
+                            "id": "I3",
+                            "interval_name": "I3",
+                            "interval_idx": 3,
+                            "reference_fasta": "test"
+                        },
+                        "interval_3.bed:md5,a225d46298c0a43cd5426e9704bbfa41",
+                        3
+                    ]
+                ],
+                "2": [
+                    "versions.yml:md5,0e2c81c6bc5d822e90a61564cc7d025c"
+                ],
+                "intervals_combined": [
+                    [
+                        {
+                            "id": "test",
+                            "reference_fasta": "test"
+                        },
+                        "test.bed:md5,47b2722aa24d21c0ee0dc2b2f39427a5",
+                        2
+                    ]
+                ],
+                "intervals_split": [
+                    [
+                        {
+                            "id": "I1",
+                            "interval_name": "I1",
+                            "interval_idx": 1,
+                            "reference_fasta": "test"
+                        },
+                        "interval_1.bed:md5,a4c4f9f247d4cfc2c2af5fd74c13efce",
+                        3
+                    ],
+                    [
+                        {
+                            "id": "I2",
+                            "interval_name": "I2",
+                            "interval_idx": 2,
+                            "reference_fasta": "test"
+                        },
+                        "interval_2.bed:md5,fc9d35f02d3a3cde40ede37cdc91bfc1",
+                        3
+                    ],
+                    [
+                        {
+                            "id": "I3",
+                            "interval_name": "I3",
+                            "interval_idx": 3,
+                            "reference_fasta": "test"
+                        },
+                        "interval_3.bed:md5,a225d46298c0a43cd5426e9704bbfa41",
+                        3
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,0e2c81c6bc5d822e90a61564cc7d025c"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.4"
+        },
+        "timestamp": "2026-02-13T13:41:11.777017304"
+    }
+}

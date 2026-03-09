@@ -70,8 +70,6 @@ workflow BOOTSTRAP_VARIANT_SET {
         CALL_VARIANTS_GATK_BOOTSTRAP.out.vcf,
         CALL_VARIANTS_GATK_BOOTSTRAP.out.tbi
     )
-    versions = versions.mix(FILTER_VARIANTS_BOOTSTRAP.out.versions)
-    multiqc_files = multiqc_files.mix(FILTER_VARIANTS_BOOTSTRAP.out.multiqc_files)
 
     //
     // SUBWORKFLOW: BQSR_BOOTSTRAP

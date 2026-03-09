@@ -9,7 +9,6 @@ process SPLIT_INTERVALS {
 
     output:
     tuple val(meta), path("*.bed"), emit: bed
-    path "versions.yml",            emit: versions
 
     script:
     """
@@ -18,10 +17,5 @@ process SPLIT_INTERVALS {
         --target-number-files ${params.target_number_of_interval_files} \
         --max-intervals ${params.max_number_of_intervals_per_file} \
         --out-prefix interval
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        python: \$(python --version | sed 's/Python //g')
-    END_VERSIONS
     """
 }

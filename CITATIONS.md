@@ -26,10 +26,6 @@
 
   > M. Vasimuddin, S. Misra, H. Li and S. Aluru, "Efficient Architecture-Aware Acceleration of BWA-MEM for Multicore Systems," 2019 IEEE International Parallel and Distributed Processing Symposium (IPDPS), 2019, pp. 314-324. doi: 10.1109/IPDPS.2019.00041.
 
-- [BREADR](https://joss.theoj.org/papers/10.21105/joss.07916)
-
-  > Rohrlach A, et al. (2025). BREADR: An R Package for the Bayesian Estimation of Genetic Relatedness from Low-coverage Genotype Data. Journal of Open Source Software 10(108), 7916. doi: 10.21105/joss.07916.
-
 - [fastp](https://www.ncbi.nlm.nih.gov/pubmed/30423086/)
 
   > Chen S, Zhou Y, Chen Y, Gu J. fastp: an ultra-fast all-in-one FASTQ preprocessor. Bioinformatics. 2018 Sep 1;34(17):i884-i890. doi: 10.1093/bioinformatics/bty560. PubMed PMID: 30423086; PubMed Central PMCID: PMC6129281.
@@ -46,21 +42,9 @@
 
   > Ewels P, Magnusson M, Lundin S, Käller M. MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics. 2016 Oct 1;32(19):3047-8. doi: 10.1093/bioinformatics/btw354. Epub 2016 Jun 16. PubMed PMID: 27312411; PubMed Central PMCID: PMC5039924.
 
-- [PGDSpider](https://academic.oup.com/bioinformatics/article/28/2/298/198891)
-
-  > H.E.L. Lischer & L. Excoffier. PGDSpider: an automated data conversion tool for connecting population genetics and genomics programs. Bioinformatics 28(2), 298–299 (2012).. doi: 10.1093/bioinformatics/btr642.
-
-- [PLINK](https://academic.oup.com/gigascience/article/4/1/s13742-015-0047-8/2707533)
-
-  > C.C. Chang, C.C. Chow, L.C.A.M. Tellier, S. Vattikuti, S.M. Purcell & J.J. Lee. Second-generation PLINK: rising to the challenge of larger and richer datasets. GigaScience 4, 1 (2015).. doi: 10.1186/s13742-015-0047-8.
-
 - [preseq](https://pubmed.ncbi.nlm.nih.gov/23435259/)
 
   > Daley T, Smith AD. Predicting the molecular complexity of sequencing libraries. Nat Methods. 2013 Apr;10(4):325-7. doi: 10.1038/nmeth.2375. Epub 2013 Feb 24. PubMed PMID: 23435259; PubMed Central PMCID: PMC3612374.
-
-- [READv2](https://link.springer.com/article/10.1186/s13059-024-03350-3)
-
-  > Alaçamlı E, Naidoo T, Güler MN, et al. (2024). READv2: advanced and user-friendly detection of biological relatedness in archaeogenomics. Genome Biology 25, 216. doi: 10.1186/s13059-024-03350-3.
 
 - [SAMtools](https://pubmed.ncbi.nlm.nih.gov/19505943/)
 

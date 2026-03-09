@@ -1,0 +1,89 @@
+nextflow_process {
+
+    name "Test Process ANGSD_NGSRELATE"
+    script "../main.nf"
+    process "ANGSD_NGSRELATE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "angsd"
+    tag "angsd/ngsrelate"
+
+    test("guinea-fowl - vcf.gz") {
+        config './nextflow.config'
+
+        setup {
+            run("GUNZIP") {
+                script "modules/nf-core/gunzip/main.nf"
+                process {
+                    """
+                    input[0] = channel.of([
+                                [id:'relatedness'],
+                                file('/home/thomas/repositories/nf-core/test-datasets/data/angsd_ngsrelate_test.vcf.gz', checkIfExists: true)
+                            ]
+                    )
+                    """
+                }
+            }
+        }
+
+        when {
+            process {
+                """
+                input[0] = GUNZIP.out.gunzip
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    file(process.out.result.get(0).get(1)).name,
+                    process.out.versions_ngsrelate
+                  ).match()
+                }
+            )
+        }
+    }
+
+    test("guinea-fowl - vcf.gz - stub") {
+        config './nextflow.config'
+
+        options "-stub"
+
+        setup {
+            run("GUNZIP") {
+                script "modules/nf-core/gunzip/main.nf"
+                process {
+                    """
+                    input[0] = channel.of([
+                                [id:'relatedness'],
+                                file('/home/thomas/repositories/nf-core/test-datasets/data/angsd_ngsrelate_test.vcf.gz', checkIfExists: true)
+                            ]
+                    )
+                    """
+                }
+            }
+        }
+
+        when {
+            process {
+                """
+                input[0] = GUNZIP.out.gunzip
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    file(process.out.result.get(0).get(1)).name,
+                    process.out.versions_ngsrelate
+                  ).match()
+                }
+            )
+        }
+    }
+}

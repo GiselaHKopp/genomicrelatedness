@@ -1,6 +1,6 @@
 process ANGSD_NGSRELATE {
     tag "${meta.id}"
-    label 'process_small'
+    label 'process_low'
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
@@ -11,27 +11,41 @@ process ANGSD_NGSRELATE {
     tuple val(meta), path(vcf)
 
     output:
-    tuple val(meta), path("${prefix}.${suffix}"), emit: plots
-    path "versions.yml",                          emit: versions
+    tuple val(meta), path("*.res"), emit: result
+    tuple val("${task.process}"), val('ngsrelate'), eval('echo "2.0"'), topic: versions, emit: versions_ngsrelate
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
-    prefix   = task.ext.prefix ?: "${meta.id}"
-    suffix   = "ngsrelate.results"
+    def prefix   = task.ext.prefix ?: "${meta.id}"
+    def args_list = args.tokenize()
+    def forbidden_args = ["-h", "-O", "-p"].intersect(args_list)
+
+    if (forbidden_args) {
+      error "ANGSD_NGSRELATE: Reserved arguments found in task.ext.args (${forbidden_args.join(', ')}). The module sets -h, -O, and -p automatically."
+    }
 
     """
     ngsRelate \\
+      -p ${task.cpus} \\
       -h ${vcf} \\
-      -O ${prefix}.${suffix} \\
-      ${args} \\
-      -p ${task.cpus}
+      -O ${prefix}.res \\
+      ${args}
+    """
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        ngsrelate: "2.0"
-    END_VERSIONS
+    stub:
+    def args = task.ext.args ?: ''
+    def prefix   = task.ext.prefix ?: "${meta.id}"
+    def args_list = args.tokenize()
+    def forbidden_args = ["-h", "-O", "-p"].intersect(args_list)
+
+    if (forbidden_args) {
+      error "ANGSD_NGSRELATE: Reserved arguments found in task.ext.args (${forbidden_args.join(', ')}). The module sets -h, -O, and -p automatically."
+    }
+
+    """
+    touch ${prefix}.res
     """
 }
