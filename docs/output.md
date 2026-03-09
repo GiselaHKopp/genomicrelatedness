@@ -35,6 +35,9 @@ This document describes the output produced by the pipeline. The directories lis
 ├── preprocessing
 │   ├── alignment
 |   |    ├── bam
+|   |    |   ├── bwamem2
+|   |    |   ├── merged
+|   |    |   └── rgadded
 │   |    └── cram
 |   |
 │   ├── coverage
@@ -44,7 +47,7 @@ This document describes the output produced by the pipeline. The directories lis
 |
 ├── variant_calling
 │   ├── bcftools
-|        ├── merged
+|   |    ├── merged
 │   |    └── bam
 |   |
 │   └── gatk

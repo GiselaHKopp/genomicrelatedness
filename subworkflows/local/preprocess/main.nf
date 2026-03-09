@@ -46,7 +46,12 @@ workflow PREPROCESS {
     merged_fastqs = ch_input_branches.fastq.mix(SPRING_DECOMPRESS.out.fastq)
 
     // Trim and QC with FASTP
-    ch_fastp_input = merged_fastqs.map { meta, reads -> tuple(meta, reads, []) }
+    ch_fastp_input = merged_fastqs
+        .map { meta, reads ->
+            def new_id = meta.sample + "_RGID${meta.RGID}"
+            def new_meta = meta + [id: new_id]
+            tuple(new_meta, reads, [])
+        }
     FASTP(ch_fastp_input, false, false, false)
     multiqc_files = multiqc_files.mix(FASTP.out.json.collect{ _meta, json -> json })
     multiqc_files = multiqc_files.mix(FASTP.out.html.collect{ _meta, html -> html })
@@ -57,56 +62,60 @@ workflow PREPROCESS {
 
     // Add read groups
     GATK4_ADDORREPLACEREADGROUPS(bam, fasta, fai)
-    ch_bam_rg_added = GATK4_ADDORREPLACEREADGROUPS.out.bam
+
+    grouped_bams = GATK4_ADDORREPLACEREADGROUPS.out.bam
                         .map { meta, bam_file -> tuple(meta.RGSM, meta, bam_file) }
                         .groupTuple()
-                        .map { _rgsm, metas, bams ->
-                            // Take the first meta and remove RGPU
-                            def meta = metas[0]
-                            def merged_meta = meta + [id: meta.RGSM + '_merged']
-                            [merged_meta, bams]
-                        }
+
+    single_bams = grouped_bams
+        .filter { _rgsm, _metas, bams -> bams.size() == 1 }
+        .map { rgsm, metas, bams ->
+            def m = metas[0]
+
+            def meta = [
+                id        : rgsm,
+                sample    : rgsm,
+                single_end: m.single_end
+            ]
+
+            tuple(meta, bams[0])
+        }
+          
+    multi_bams = grouped_bams
+        .filter { _rgsm, _metas, bams -> bams.size() > 1 }
+        .map { rgsm, metas, bams ->
+            def m = metas[0]
+
+            def meta = [
+                id        : rgsm,
+                sample    : rgsm,
+                single_end: m.single_end
+            ]
+
+            tuple(meta, bams, [])
+        }
 
     // Build reference tuple for SAMTOOLS_MERGE input signature
     ch_merge_reference = fasta.join(fai)
         .map { meta, fasta_file, fai_file -> tuple(meta, fasta_file, fai_file, []) }
 
-    // Build input for samtools/merge
-    merge_input = ch_bam_rg_added
-        .map { meta, input_files -> tuple(meta, input_files, [])}
-
     // Merge BAMs per-sample
     SAMTOOLS_MERGE(
-        merge_input,
+        multi_bams,
         ch_merge_reference
     )
 
-    merged_bam = SAMTOOLS_MERGE.out.bam
-                .map { meta, bam_file ->
-                    def new_meta = meta + [ id: meta.RGSM ]
-                    tuple(new_meta, bam_file)
-                }
+    merged_bam = single_bams.mix(SAMTOOLS_MERGE.out.bam)
 
     // Mark duplicates
     GATK4_MARKDUPLICATES(merged_bam, fasta.map { tuple -> tuple[1] }, fai.map{ tuple -> tuple[1] })
     multiqc_files = multiqc_files.mix(GATK4_MARKDUPLICATES.out.metrics.map { tuple -> tuple[1] })
     ch_cram = GATK4_MARKDUPLICATES.out.cram
         .mix(ch_input_branches.cram)
-        .map { meta, cram_file ->
-            def norm_meta = meta - meta.subMap('RGID', 'RGPU', 'RGPL', 'RGLB') + [ id: meta.RGSM ]
-
-            tuple(norm_meta, cram_file)
-        }
 
     // Compute index
-    SAMTOOLS_INDEX(ch_input_branches.cram)
-    ch_crai = GATK4_MARKDUPLICATES.out.crai
-        .mix(SAMTOOLS_INDEX.out.crai)
-        .map { meta, crai_file ->
-            def norm_meta = meta - meta.subMap('RGID', 'RGPU', 'RGPL', 'RGLB') + [ id: meta.RGSM ]
-
-            tuple(norm_meta, crai_file)
-        }
+    SAMTOOLS_INDEX(ch_cram)
+    ch_crai = SAMTOOLS_INDEX.out.crai
 
     // Preseq analyses
     PRESEQ_CCURVE(ch_cram)
