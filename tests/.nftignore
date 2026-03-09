@@ -36,13 +36,24 @@ preprocessing/fastp/*fastp.{html,json,log}
 #-------#
 **/*.{vcf,vcf.gz,vcf.gz.tbi}
 
+#-----------------#
+#- Bootstrapping -#
+#-----------------#
+bootstrapping/round_*/stats/*bcftools_stats.txt
+
 #--------#
 #- BQSR -#
 #--------#
 **/*.table
+**/qc/*.csv
 **/qc/*.pdf
 
 #---------------#
 #- Genomics DB -#
 #---------------#
 **/db/*_joint/**
+
+#---------------#
+#- Relatedness -#
+#---------------#
+relatedness_estimation/intersection/sites.txt

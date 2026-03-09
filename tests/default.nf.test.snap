@@ -21,7 +21,7 @@
                     "bcftools": 1.22
                 },
                 "BUILD_INTERVALS": {
-                    "gawk": "5.3.0"
+                    "gawk": "5.3.1"
                 },
                 "BWAMEM2_INDEX": {
                     "bwamem2": "2.2.1"
@@ -102,8 +102,6 @@
                 }
             },
             [
-                "MC_24AB06_e04_S12_1.csv:md5,46651769172195af58c6ce55ed6ad70f",
-                "called_variants_1.gatk.bcftools_stats.txt:md5,03968a378a1abcacceb2479ef8780334",
                 "interval_1.bed:md5,a7c0e86aa4c762a0ef781ae785c1f20d",
                 "interval_2.bed:md5,2c50bcfbc014e4b01320692cd482e73e",
                 "reference_genome.bed:md5,e973fbbbd6363c23e1fd972c6f285c9d",
@@ -122,7 +120,6 @@
                 "reference_genome.dict:md5,cabb8f25303b23f522204dfee09be492",
                 "reference_genome.fna.fai:md5,ba754a7bc3720a2b98acdf8750bd26fa",
                 "README.txt:md5,9dc1a4ad7cc770ddc79f8fc0bcbc5d1d",
-                "sites.txt:md5,1b6c133acb014d1ecf1fe9414c557c49",
                 "called_variants.gatk.bcftools_stats.txt:md5,e3e8a57f91c6758ec7e658d57f231e70"
             ],
             [
@@ -412,7 +409,7 @@
                 "variant_calling/gatk/stats/called_variants.gatk.bcftools_stats.txt"
             ]
         ],
-        "timestamp": "2026-03-09T08:21:17.000890058",
+        "timestamp": "2026-03-09T13:02:56.415808348",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
