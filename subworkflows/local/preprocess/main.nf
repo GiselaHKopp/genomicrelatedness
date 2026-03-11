@@ -8,6 +8,7 @@ include { FASTP                          } from '../../../modules/nf-core/fastp'
 include { GATK4_ADDORREPLACEREADGROUPS   } from '../../../modules/nf-core/gatk4/addorreplacereadgroups'
 include { GATK4_MARKDUPLICATES           } from '../../../modules/nf-core/gatk4/markduplicates'
 include { MOSDEPTH                       } from '../../../modules/nf-core/mosdepth'
+include { NORMALIZE_BAM_NAMES            } from '../../../modules/local/normalize_bam_names'
 include { PRESEQ_CCURVE                  } from '../../../modules/nf-core/preseq/ccurve'
 include { PRESEQ_LCEXTRAP                } from '../../../modules/nf-core/preseq/lcextrap'
 include { SAMTOOLS_INDEX                 } from '../../../modules/nf-core/samtools/index'
@@ -48,7 +49,7 @@ workflow PREPROCESS {
     // Trim and QC with FASTP
     ch_fastp_input = merged_fastqs
         .map { meta, reads ->
-            def new_id = meta.sample + "_RGID${meta.RGID}"
+            def new_id = meta.RGSM + "_RGID${meta.RGID}"
             def new_meta = meta + [id: new_id]
             tuple(new_meta, reads, [])
         }
@@ -64,31 +65,31 @@ workflow PREPROCESS {
     GATK4_ADDORREPLACEREADGROUPS(bam, fasta, fai)
 
     grouped_bams = GATK4_ADDORREPLACEREADGROUPS.out.bam
-                        .map { meta, bam_file -> tuple(meta.RGSM, meta, bam_file) }
+                        .map { meta, bam_file -> tuple(meta.sample, meta, bam_file) }
                         .groupTuple()
 
     single_bams = grouped_bams
-        .filter { _rgsm, _metas, bams -> bams.size() == 1 }
-        .map { rgsm, metas, bams ->
+        .filter { _sample, _metas, bams -> bams.size() == 1 }
+        .map { sample, metas, bams ->
             def m = metas[0]
 
             def meta = [
-                id        : rgsm,
-                sample    : rgsm,
+                id        : sample,
+                sample    : sample,
                 single_end: m.single_end
             ]
 
             tuple(meta, bams[0])
         }
-          
+
     multi_bams = grouped_bams
-        .filter { _rgsm, _metas, bams -> bams.size() > 1 }
-        .map { rgsm, metas, bams ->
+        .filter { _sample, _metas, bams -> bams.size() > 1 }
+        .map { sample, metas, bams ->
             def m = metas[0]
 
             def meta = [
-                id        : rgsm,
-                sample    : rgsm,
+                id        : sample,
+                sample    : sample,
                 single_end: m.single_end
             ]
 
@@ -105,10 +106,12 @@ workflow PREPROCESS {
         ch_merge_reference
     )
 
-    merged_bam = single_bams.mix(SAMTOOLS_MERGE.out.bam)
+    NORMALIZE_BAM_NAMES(single_bams)
+
+    merged_bams = NORMALIZE_BAM_NAMES.out.bam.mix(SAMTOOLS_MERGE.out.bam)
 
     // Mark duplicates
-    GATK4_MARKDUPLICATES(merged_bam, fasta.map { tuple -> tuple[1] }, fai.map{ tuple -> tuple[1] })
+    GATK4_MARKDUPLICATES(merged_bams, fasta.map { tuple -> tuple[1] }, fai.map{ tuple -> tuple[1] })
     multiqc_files = multiqc_files.mix(GATK4_MARKDUPLICATES.out.metrics.map { tuple -> tuple[1] })
     ch_cram = GATK4_MARKDUPLICATES.out.cram
         .mix(ch_input_branches.cram)

@@ -25,6 +25,7 @@ pipeline_info/*.{html,json,txt,yml}
 #- Preprocessing outputs -#
 #-------------------------#
 preprocessing/fastp/*fastp.{html,json,log}
+preprocessing/alignment/cram/*.metrics
 
 #--------------#
 #- BAM / CRAM -#

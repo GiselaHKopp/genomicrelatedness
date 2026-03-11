@@ -35,9 +35,7 @@ This document describes the output produced by the pipeline. The directories lis
 ├── preprocessing
 │   ├── alignment
 |   |    ├── bam
-|   |    |   ├── bwamem2
-|   |    |   ├── merged
-|   |    |   └── rgadded
+|   |    |   └── bwamem2
 │   |    └── cram
 |   |
 │   ├── coverage
