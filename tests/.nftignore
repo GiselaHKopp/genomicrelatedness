@@ -54,6 +54,11 @@ bootstrapping/round_*/stats/*bcftools_stats.txt
 #---------------#
 **/db/*_joint/**
 
+#-------------------#
+#- Variant Calling -#
+#-------------------#
+variant_calling/gatk/stats/*bcftools_stats.txt
+
 #---------------#
 #- Relatedness -#
 #---------------#
