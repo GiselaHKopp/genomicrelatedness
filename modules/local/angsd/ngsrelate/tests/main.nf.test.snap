@@ -10,7 +10,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-02-17T12:45:15.854951243",
+        "timestamp": "2026-03-12T10:08:30.322165562",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
@@ -27,24 +27,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-02-17T12:45:31.608168085",
-        "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "25.10.4"
-        }
-    },
-    "test-angsd-ngsrelate": {
-        "content": [
-            "relatedness.res",
-            [
-                [
-                    "ANGSD_NGSRELATE",
-                    "ngsrelate",
-                    "2.0"
-                ]
-            ]
-        ],
-        "timestamp": "2026-02-17T12:39:06.435046665",
+        "timestamp": "2026-03-12T10:08:34.45323308",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
