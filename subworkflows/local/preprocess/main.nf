@@ -99,6 +99,7 @@ workflow PREPROCESS {
     // Build reference tuple for SAMTOOLS_MERGE input signature
     ch_merge_reference = fasta.join(fai)
         .map { meta, fasta_file, fai_file -> tuple(meta, fasta_file, fai_file, []) }
+        .collect()
 
     // Merge BAMs per-sample
     SAMTOOLS_MERGE(

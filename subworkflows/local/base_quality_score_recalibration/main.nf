@@ -80,6 +80,7 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
     // Build reference tuple for SAMTOOLS_MERGE input signature
     ch_merge_reference = fasta.join(fai)
         .map { meta, fasta_file, fai_file -> tuple(meta, fasta_file, fai_file, []) }
+        .collect()
 
     // Build input for samtools/merge
     merge_input = ch_cram_branch.multiple
@@ -92,7 +93,8 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
     )
 
     // Mix intervals and no_intervals channels together
-    ch_recalibrated_cram = SAMTOOLS_MERGE.out.cram.mix(ch_cram_branch.single)
+    ch_recalibrated_cram = SAMTOOLS_MERGE.out.cram
+        .mix(ch_cram_branch.single)
         .map{ meta, cram_file ->
             tuple(meta - meta.subMap('interval_name', 'num_intervals'), cram_file)
         }
