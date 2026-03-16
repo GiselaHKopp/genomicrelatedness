@@ -23,10 +23,6 @@ nextflow_pipeline {
             def bam_files = getAllFilesFromDir(params.outdir, include: ['**/*.bam'], ignore: ['**/variant_calling/**/*.bam'])
             def cram_files = getAllFilesFromDir(params.outdir, include: ['**/*.cram'])
             def vcf_files = getAllFilesFromDir(params.outdir, include: ['**/*.vcf{,.gz}'])
-            // Reference fasta file for CRAM MD5 checks
-            def fasta_base  = '/home/thomas/Documents/projects/bwrse4hpc/genomicrelatedness/test_data_26112025/RefGenome/'
-            //def fasta_base  = 'https://raw.githubusercontent.com/nf-core/test-datasets/genomicrelatedness/'
-            def fasta = fasta_base + 'NC_044995.1_Panubis1.0_Chr20.fna'
 
             assertAll(
                 { assert workflow.success},

@@ -73,6 +73,9 @@
                 "GATK4_VARIANTFILTRATION": {
                     "gatk4": "4.6.2.0"
                 },
+                "GUNZIP": {
+                    "gunzip": 1.13
+                },
                 "MOSDEPTH": {
                     "mosdepth": "0.3.11"
                 },
@@ -104,7 +107,7 @@
             [
                 "interval_1.bed:md5,a7c0e86aa4c762a0ef781ae785c1f20d",
                 "interval_2.bed:md5,2c50bcfbc014e4b01320692cd482e73e",
-                "reference_genome.bed:md5,e973fbbbd6363c23e1fd972c6f285c9d",
+                "reference_genome.fna.bed:md5,e973fbbbd6363c23e1fd972c6f285c9d",
                 "MC_24AB06_e04.mosdepth.global.dist.txt:md5,347f2da9d235d55a65073b68b923c631",
                 "MC_24AB06_e04.mosdepth.summary.txt:md5,2bc10d861af032dc43f50257f9aaff01",
                 "MC_24AC01_e02.mosdepth.global.dist.txt:md5,2b6b923da609296047d8d1ce130daf5e",
@@ -123,6 +126,7 @@
                 "reference_genome.fna.bwt.2bit.64:md5,1cfeb1b13d1607385f3f69b0f828edc1",
                 "reference_genome.fna.pac:md5,8412c8495a23f5862cb54d39e9c8f90a",
                 "reference_genome.dict:md5,cabb8f25303b23f522204dfee09be492",
+                "reference_genome.fna:md5,8dbbcc39323437dab15fbcd73fe3582a",
                 "reference_genome.fna.fai:md5,ba754a7bc3720a2b98acdf8750bd26fa",
                 "README.txt:md5,9dc1a4ad7cc770ddc79f8fc0bcbc5d1d"
             ],
@@ -189,7 +193,7 @@
                 "intervals",
                 "intervals/interval_1.bed",
                 "intervals/interval_2.bed",
-                "intervals/reference_genome.bed",
+                "intervals/reference_genome.fna.bed",
                 "multiqc",
                 "multiqc/multiqc_data",
                 "multiqc/multiqc_data/bcftools-stats-subtypes.txt",
@@ -392,6 +396,7 @@
                 "reference_genome/bwamem2/reference_genome.fna.bwt.2bit.64",
                 "reference_genome/bwamem2/reference_genome.fna.pac",
                 "reference_genome/reference_genome.dict",
+                "reference_genome/reference_genome.fna",
                 "reference_genome/reference_genome.fna.fai",
                 "relatedness_estimation",
                 "relatedness_estimation/intersection",
@@ -442,7 +447,7 @@
                 "variant_calling/gatk/stats/called_variants.gatk.bcftools_stats.txt"
             ]
         ],
-        "timestamp": "2026-03-12T14:01:22.800902659",
+        "timestamp": "2026-03-16T13:18:58.96931001",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
