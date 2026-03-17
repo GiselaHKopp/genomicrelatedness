@@ -19,7 +19,7 @@ nextflow_process {
                     """
                     input[0] = channel.of([
                                 [id:'relatedness'],
-                                file('/home/thomas/repositories/nf-core/test-datasets/data/angsd_ngsrelate_test.vcf.gz', checkIfExists: true)
+                                file(params.pipelines_testdata_base_path + params.pipelines_testdata_genomicrelatedness_path_suffix + 'data/angsd_ngsrelate/angsd_ngsrelate_test.vcf.gz', checkIfExists: true)
                             ]
                     )
                     """
@@ -59,7 +59,7 @@ nextflow_process {
                     """
                     input[0] = channel.of([
                                 [id:'relatedness'],
-                                file('/home/thomas/repositories/nf-core/test-datasets/data/angsd_ngsrelate_test.vcf.gz', checkIfExists: true)
+                                file(params.pipelines_testdata_base_path + params.pipelines_testdata_genomicrelatedness_path_suffix + 'data/angsd_ngsrelate/angsd_ngsrelate_test.vcf.gz', checkIfExists: true)
                             ]
                     )
                     """
