@@ -1,5 +1,5 @@
 {
-    "-profile test": {
+    "-profile test_default": {
         "content": [
             {
                 "BCFTOOLS_CALL": {
@@ -477,7 +477,7 @@
                 "called_variants.gatk.vcf.gz:md5,28641ccd48a763159f5edb766bd47131"
             ]
         ],
-        "timestamp": "2026-03-18T15:34:25.932949231",
+        "timestamp": "2026-03-18T16:34:37.143558456",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"

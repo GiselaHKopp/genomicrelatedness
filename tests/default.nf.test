@@ -4,8 +4,9 @@ nextflow_pipeline {
     script "../main.nf"
     tag "pipeline"
     tag "test"
+    profile "test_default"
 
-    test("-profile test") {
+    test("-profile test_default") {
 
         when {
             params {

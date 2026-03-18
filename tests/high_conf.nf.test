@@ -4,6 +4,7 @@ nextflow_pipeline {
     script "../main.nf"
     tag "pipeline"
     tag "test_high_conf"
+    profile "test_high_conf"
 
     test("-profile test_high_conf") {
 
