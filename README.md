@@ -21,7 +21,7 @@
 
 ## Introduction
 
-**nf-core/genomicrelatedness** is a bioinformatics pipeline for estimating genomic relatedness from low-coverage whole-genome sequencing (lcWGS) data. It performs read mapping, optional base quality score recalibration, variant calling with GATK and BCFtools, and downstream relatedness estimation using multiple complementary tools. For many non-model organisms, no high-confidence variant set is available. The pipeline provides an automated multi-round bootstrapping workflow to generate one. The resulting standardized outputs include genotype likelihood-based variant calls, filtered VCF files, and relatedness estimates from several independent algorithms, enabling robust inference even from very sparse sequencing data.
+**nf-core/genomicrelatedness** is a bioinformatics pipeline for estimating genomic relatedness from low-coverage whole-genome sequencing (lcWGS) data. It performs read mapping, optional base quality score recalibration, variant calling with GATK and BCFtools, and downstream relatedness estimation. For many non-model organisms, no high-confidence variant set is available. The pipeline provides an automated multi-round bootstrapping workflow to generate one. The resulting standardized outputs include genotype likelihood-based variant calls, filtered VCF files, and relatedness estimates from several independent algorithms, enabling robust inference even from very sparse sequencing data.
 
 ![overview](assets/genomicrelatedness_global_metro_map.png)
 
@@ -85,23 +85,10 @@ The pipeline consists of the following four main sections that perform the major
     - **Variant statistics** are produced for each subworkflow to judge the quality of the called variants. 
 
 
-4. **Relatedness estimation section**: produces robust estimates of pairwise relatedness suitable for lcWGS data using complementary tools. 
+4. **Relatedness estimation section**: produces robust estimates of pairwise relatedness suitable for lcWGS data. 
     
-    - **PMR-based relatedness estimation with READv2 (`--relatedness-read`)** uses the pairwise-mismatch rate approach base on pseudohaploid data implemented in [`READv2`](https://github.com/GuntherLab/READv2).
-
-        > [!NOTE]
-        > not yet functional because file conversion to eigenstrat failed
-
-
-
-    - **Bayesian PMR-based relatedness estimation with BREADR (`--relatedness_breadr`)** uses the pairwise-mismatch rate approach on thinned data and Bayesian posterior probabilities as implemented in the R package [`BREADR`](https://github.com/jonotuke/BREADR).
-
-         > [!NOTE]
-        > not yet functional  because file conversion to eigenstrat failed
-
-
-
     - **Maximum-likelihood estimation of relatedness from genotype likelihoods with NGSrelate (`--relatedness_ngsrelate`)** uses genotype likelihoods to infer IBD with maximum-likelihood analysis as implemented in [`NgsRelatev2`](https://github.com/ANGSD/NgsRelate).
+
 
 
 5. MultiQC reporting: Aggregates quality metrics across all workflow stages into a single interactive report.
@@ -114,26 +101,25 @@ For detailed instructions, please refer to the [usage documentation](https://nf-
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):-->
+
 
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
 
 ```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
+sample,fastq_1,fastq_2,RGID,RGLB,RGPL,RGPU,RGSM
+sample-1,sample1_S1_L002_R1_001.fastq.gz,sample1_S1_L002_R2_001.fastq.gz,FC1_L002,lib1a,Illumina,FC1_L002_sample-1-a,sample-1-a
+sample-1,sample1_S1_L003_R1_001.fastq.gz,sample1_S1_L003_R2_001.fastq.gz,FC1_L003,lib1b,Illumina,FC1_L003_sample-1-b,sample-1-b
+sample-2,sample2_S1_L004_R1_001.fastq.gz,sample2_S1_L004_R2_001.fastq.gz,FC1_L004,lib2,Illumina,FC1_L004_sample-2-a,sample-2-a
 
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end). Alternatively, the samplesheet can be filled with fastq files encoded in SPRING format, or the preprocessing steps can be skipped entirely when BAM or CRAM files are provided.
+The sample sheet is provided as a comma-separated value (CSV) file, with one line corresponding to one paired-read set and eight defined columns. The first column “sample” holds the individual name enabling cross-referencing to other datasets for downstream analyses (may refer to individual or sample depending on the unit of interest). Columns “fastq_1” and “fastq_2” hold the filepaths to the paired-end sequencing raw reads for forward and reverse read, respectively. The following five columns give more details on the production of the sequencing data based on [`SAM/BAM file format specification`]() (The SAM/BAM Format Specification Work...), required for the preprocessing section by the GATK4 (McKenna et al. 2010; Van der Auwera and O'Connor 2020; GATK 2024): “RGID” holds the unique run identifier, e.g. {FLOWCELL}.{LANE}; “RGLB” holds the library identifier; “RGPL” holds the sequencing technology or platform, e.g. ILLUMINA; ”RGPU” holds the platform unit, e.g. {FLOWCELL}.{LANE}.{SAMPLE};”RGSM” holds the individual sample name (hence can equal the “ID” column but might deviate if multiple samples of the same individual are analyzed). Optionally, more columns can be added, for example containing sex and group information.
+
+Alternatively, the samplesheet can be filled with fastq files encoded in SPRING format, or the preprocessing steps can be skipped entirely when BAM or CRAM files are provided.
 
 Now, you can run the pipeline using:
-
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
 nextflow run nf-core/genomicrelatedness \
