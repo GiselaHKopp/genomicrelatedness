@@ -408,32 +408,9 @@
                 "variant_calling/gatk/merged/called_variants.gatk.vcf.gz.tbi",
                 "variant_calling/gatk/stats",
                 "variant_calling/gatk/stats/called_variants.gatk.bcftools_stats.txt"
-            ],
-            [
-                "0000.vcf:md5,bcb1edc9f334ce16675f0d66c9fd1dd1",
-                "0001.vcf:md5,fe2ccd0f825b2ac0ff4bb8378a944cdb",
-                "0002.vcf:md5,63cc12d18004c14f62acd274d2c9e2bf",
-                "0003.vcf:md5,44a097e0286dffc124b7fac0250b7ba8",
-                "called_variants_thinned.recode.vcf:md5,b07ec5c2ca6fa84363f56e1e399259d5",
-                "I1.called.vcf.gz:md5,9601b9568100742e4c0ab41a7f666079",
-                "I1.mpileup.vcf.gz:md5,c06ba969ee652e7ba7edc135be23aadc",
-                "I2.called.vcf.gz:md5,d41d8cd98f00b204e9800998ecf8427e",
-                "I2.mpileup.vcf.gz:md5,aee392f0814edded85ec303c216c8448",
-                "called_variants.bcftools.vcf.gz:md5,9601b9568100742e4c0ab41a7f666079",
-                "I1_joint.sorted.vcf.gz:md5,db6173d1468ab73b7c705bca60a13c00",
-                "I1_joint.vcf.gz:md5,846b149833f9064887108e357eb953be",
-                "I2_joint.sorted.vcf.gz:md5,2fb3c1d4457339d7b9a437b2ecc5649c",
-                "I2_joint.vcf.gz:md5,781aed0548d607fa0da6a155f936b3b9",
-                "WT_REP1_I1_gatk.vcf.gz:md5,74858fa7e8d3f94e7dbec51b723d02eb",
-                "WT_REP1_I2_gatk.vcf.gz:md5,d13723d39b08006f2022e132a176f081",
-                "WT_REP2_I1_gatk.vcf.gz:md5,703627d8d44410ba2c5a0ef66d87cdc3",
-                "WT_REP2_I2_gatk.vcf.gz:md5,bf69d768309934bfcef3dc315943053e",
-                "vcfheader.vcf:md5,d41d8cd98f00b204e9800998ecf8427e",
-                "vcfheader.vcf:md5,d41d8cd98f00b204e9800998ecf8427e",
-                "called_variants.gatk.vcf.gz:md5,4682001fd2a7c76d3432dbdeeb586558"
             ]
         ],
-        "timestamp": "2026-03-18T16:22:30.979069912",
+        "timestamp": "2026-03-18T17:08:15.463930723",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
