@@ -20,7 +20,11 @@
                     
                 ],
                 "4": [
-                    "versions.yml:md5,14ba6682ef906ab7e0ea1da2f47d2f08"
+                    [
+                        "BCFTOOLS_MPILEUP",
+                        "bcftools",
+                        "1.22"
+                    ]
                 ],
                 "csi": [
                     
@@ -39,15 +43,19 @@
                         "test.vcf.gz:md5,f2953f0b97e5280f34378a9c7e98ec8a"
                     ]
                 ],
-                "versions": [
-                    "versions.yml:md5,14ba6682ef906ab7e0ea1da2f47d2f08"
+                "versions_bcftools": [
+                    [
+                        "BCFTOOLS_MPILEUP",
+                        "bcftools",
+                        "1.22"
+                    ]
                 ]
             }
         ],
+        "timestamp": "2026-03-19T07:15:09.86478404",
         "meta": {
-            "nf-test": "0.9.3",
-            "nextflow": "25.10.3"
-        },
-        "timestamp": "2026-02-11T17:13:12.47323346"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     }
 }
