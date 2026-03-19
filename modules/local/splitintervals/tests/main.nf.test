@@ -8,7 +8,7 @@ nextflow_process {
     tag "modules_local"
     tag "splitintervals"
 
-    test("basic") {
+    test("test-split-intervals") {
 
         config "./nextflow.config"
 
