@@ -434,6 +434,20 @@
                     "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
                     "hidden": true
                 },
+                "pipelines_testdata_genomicrelatedness_path_suffix": {
+                    "type": "string",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "URL suffix for nf-core/genomicrelatedness's test dataset repository",
+                    "default": "refs/heads/genomicrelatedness/",
+                    "hidden": true
+                },
+                "pipelines_testdata_rnaseq_path_suffix": {
+                    "type": "string",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "URL suffix for nf-core/rnaseq's test dataset repository",
+                    "default": "refs/heads/rnaseq/",
+                    "hidden": true
+                },
                 "trace_report_suffix": {
                     "type": "string",
                     "fa_icon": "far calendar",

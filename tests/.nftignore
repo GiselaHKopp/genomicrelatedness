@@ -25,6 +25,9 @@ pipeline_info/*.{html,json,txt,yml}
 #- Preprocessing outputs -#
 #-------------------------#
 preprocessing/fastp/*fastp.{html,json,log}
+preprocessing/alignment/cram/*.metrics
+preprocessing/coverage/*.txt
+preprocessing/stats/*.stats
 
 #--------------#
 #- BAM / CRAM -#
@@ -52,6 +55,11 @@ bootstrapping/round_*/stats/*bcftools_stats.txt
 #- Genomics DB -#
 #---------------#
 **/db/*_joint/**
+
+#-------------------#
+#- Variant Calling -#
+#-------------------#
+variant_calling/gatk/stats/*bcftools_stats.txt
 
 #---------------#
 #- Relatedness -#

@@ -32,10 +32,6 @@
                         "genome.fasta.fai:md5,3520cd30e1b100e55f578db9c855f685"
                     ]
                 ],
-                "3": [
-                    "versions.yml:md5,6005d55dcafc81b7cae8910ad2bf6f10",
-                    "versions.yml:md5,784a8f5ab1ba9964b1b8c4d6427e3cbb"
-                ],
                 "bwamem2_index": [
                     [
                         {
@@ -65,17 +61,13 @@
                         },
                         "genome.fasta.fai:md5,3520cd30e1b100e55f578db9c855f685"
                     ]
-                ],
-                "versions": [
-                    "versions.yml:md5,6005d55dcafc81b7cae8910ad2bf6f10",
-                    "versions.yml:md5,784a8f5ab1ba9964b1b8c4d6427e3cbb"
                 ]
             }
         ],
+        "timestamp": "2026-03-19T07:09:08.600114708",
         "meta": {
-            "nf-test": "0.9.3",
+            "nf-test": "0.9.4",
             "nextflow": "25.10.4"
-        },
-        "timestamp": "2026-02-13T13:49:09.351440165"
+        }
     }
 }

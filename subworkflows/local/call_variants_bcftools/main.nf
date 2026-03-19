@@ -48,8 +48,8 @@ workflow CALL_VARIANTS_BCFTOOLS {
         tuple( meta + [variantcaller: 'bcftools'], crai_file ) }
         .set { crai }
 
-    // Build reference tuple for SAMTOOLS_MERGE input signature
-    ch_reference = fasta.join(fai)
+    // Build reference tuple for SAMTOOLS_CONVERT input signature
+    ch_reference = fasta.join(fai).collect()
 
     // Convert CRAM/CAI to BAM/BAI
     ch_cram_crai_to_convert = cram.join(crai)

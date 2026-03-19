@@ -45,7 +45,7 @@ workflow GENOMICRELATEDNESS {
     ch_fasta_gzipped = params.fasta
         ? params.fasta.endsWith('.gz')
             ? channel.fromPath(params.fasta)
-                .map { f -> [ [id: f.baseName], f ] }
+                .map { f -> [ [id: f.simpleName], f ] }
                 .collect()
             : channel.empty()
         : channel.empty()
@@ -57,7 +57,7 @@ workflow GENOMICRELATEDNESS {
         ? params.fasta.endsWith('.gz')
             ? GUNZIP.out.gunzip
         : channel.fromPath(params.fasta)
-            .map { f -> [ [id: f.baseName], f ] }
+            .map { f -> [ [id: f.simpleName], f ] }
             .collect()
         : channel.empty()
 
@@ -68,13 +68,13 @@ workflow GENOMICRELATEDNESS {
 
     // Gather built indices or get them from the params
     ch_dict = params.dict
-        ? channel.fromPath(params.dict).map { it -> [[id: it.baseName], it] }.collect()
+        ? channel.fromPath(params.dict).map { it -> [[id: it.simpleName], it] }.collect()
         : PREPARE_GENOME.out.dict
     ch_fasta_fai = params.fasta_fai
-        ? channel.fromPath(params.fasta_fai).map { it -> [[id: it.baseName], it] }.collect()
+        ? channel.fromPath(params.fasta_fai).map { it -> [[id: it.simpleName], it] }.collect()
         : PREPARE_GENOME.out.fasta_fai
     ch_bwamem2 = params.bwamem2_index
-        ? channel.fromPath(params.bwamem2_index).map { it -> [[id: it.baseName], it] }.collect()
+        ? channel.fromPath(params.bwamem2_index).map { it -> [[id: it.simpleName], it] }.collect()
         : PREPARE_GENOME.out.bwamem2_index
 
     //

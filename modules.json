@@ -5,11 +5,6 @@
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
-                    "bcftools/call": {
-                        "branch": "master",
-                        "git_sha": "6383d8fe58f9498eecd5aa303e71a4a932d1e9f6",
-                        "installed_by": ["modules"]
-                    },
                     "bcftools/concat": {
                         "branch": "master",
                         "git_sha": "6383d8fe58f9498eecd5aa303e71a4a932d1e9f6",
@@ -147,27 +142,27 @@
                     },
                     "samtools/convert": {
                         "branch": "master",
-                        "git_sha": "51fa714751883254ede046c50acf20076b46ca81",
+                        "git_sha": "156feda0cb6589cd29c04902004fa3b53bc00205",
                         "installed_by": ["modules"]
                     },
                     "samtools/faidx": {
                         "branch": "master",
-                        "git_sha": "b2e78932ef01165fd85829513eaca29eff8e640a",
+                        "git_sha": "156feda0cb6589cd29c04902004fa3b53bc00205",
                         "installed_by": ["modules"]
                     },
                     "samtools/index": {
                         "branch": "master",
-                        "git_sha": "1d2fbdcbca677bbe8da0f9d0d2bb7c02f2cab1c9",
+                        "git_sha": "156feda0cb6589cd29c04902004fa3b53bc00205",
                         "installed_by": ["modules"]
                     },
                     "samtools/merge": {
                         "branch": "master",
-                        "git_sha": "440edf75d8782913115a7b72a88392a227f72cc1",
+                        "git_sha": "156feda0cb6589cd29c04902004fa3b53bc00205",
                         "installed_by": ["modules"]
                     },
                     "samtools/stats": {
                         "branch": "master",
-                        "git_sha": "fe93fde0845f907fc91ad7cc7d797930408824df",
+                        "git_sha": "156feda0cb6589cd29c04902004fa3b53bc00205",
                         "installed_by": ["modules"]
                     },
                     "spring/decompress": {
