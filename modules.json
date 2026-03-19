@@ -147,27 +147,27 @@
                     },
                     "samtools/convert": {
                         "branch": "master",
-                        "git_sha": "4e3e10e502ec6ab6b1c4b4fecd923ff1fa287338",
+                        "git_sha": "156feda0cb6589cd29c04902004fa3b53bc00205",
                         "installed_by": ["modules"]
                     },
                     "samtools/faidx": {
                         "branch": "master",
-                        "git_sha": "4e3e10e502ec6ab6b1c4b4fecd923ff1fa287338",
+                        "git_sha": "156feda0cb6589cd29c04902004fa3b53bc00205",
                         "installed_by": ["modules"]
                     },
                     "samtools/index": {
                         "branch": "master",
-                        "git_sha": "4e3e10e502ec6ab6b1c4b4fecd923ff1fa287338",
+                        "git_sha": "156feda0cb6589cd29c04902004fa3b53bc00205",
                         "installed_by": ["modules"]
                     },
                     "samtools/merge": {
                         "branch": "master",
-                        "git_sha": "44b7dad0181c7a0495f6d128d8cbf55feb277a84",
+                        "git_sha": "156feda0cb6589cd29c04902004fa3b53bc00205",
                         "installed_by": ["modules"]
                     },
                     "samtools/stats": {
                         "branch": "master",
-                        "git_sha": "4e3e10e502ec6ab6b1c4b4fecd923ff1fa287338",
+                        "git_sha": "156feda0cb6589cd29c04902004fa3b53bc00205",
                         "installed_by": ["modules"]
                     },
                     "spring/decompress": {
