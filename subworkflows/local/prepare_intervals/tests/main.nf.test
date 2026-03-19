@@ -9,6 +9,8 @@ nextflow_workflow {
 
     test("test-prepare-intervals") {
 
+        config "./nextflow.config"
+
         when {
             workflow {
                 """
