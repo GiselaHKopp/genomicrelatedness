@@ -110,7 +110,7 @@ workflow BASE_QUALITY_SCORE_RECALIBRATION {
         }
 
     // Remove 'recalibrated' from ID
-    ch_recalibrated_crai = SAMTOOLS_INDEX.out.crai
+    ch_recalibrated_crai = SAMTOOLS_INDEX.out.index
         .map { meta, crai_file ->
             def new_id = (meta.sample ?: meta.id.split('_')[0]) + (meta.bootstrapping_round ? "_${meta.bootstrapping_round}" : "")
             tuple(meta + [id: new_id], crai_file)

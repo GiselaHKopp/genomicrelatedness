@@ -114,34 +114,44 @@ workflow PREPROCESS {
     // Mark duplicates
     GATK4_MARKDUPLICATES(merged_bams, fasta.map { tuple -> tuple[1] }, fai.map{ tuple -> tuple[1] })
     multiqc_files = multiqc_files.mix(GATK4_MARKDUPLICATES.out.metrics.map { tuple -> tuple[1] })
-    ch_cram = GATK4_MARKDUPLICATES.out.cram
+    cram = GATK4_MARKDUPLICATES.out.cram
         .mix(ch_input_branches.cram)
 
     // Compute index
-    SAMTOOLS_INDEX(ch_cram)
-    ch_crai = SAMTOOLS_INDEX.out.crai
+    SAMTOOLS_INDEX(cram)
+    crai = SAMTOOLS_INDEX.out.index
 
     // Preseq analyses
-    PRESEQ_CCURVE(ch_cram)
+    PRESEQ_CCURVE(cram)
     versions = versions.mix(PRESEQ_CCURVE.out.versions)
     multiqc_files = multiqc_files.mix(PRESEQ_CCURVE.out.c_curve.map { _meta, file -> file }).mix(PRESEQ_CCURVE.out.log.map{ _meta, file -> file })
 
-    PRESEQ_LCEXTRAP(ch_cram)
+    PRESEQ_LCEXTRAP(cram)
     multiqc_files = multiqc_files.mix(PRESEQ_LCEXTRAP.out.lc_extrap.map { _meta, file -> file }).mix(PRESEQ_LCEXTRAP.out.log.map{ _meta, file -> file })
 
     // Samtools stats on final CRAMs
-    ch_samstats_input = ch_cram.join(ch_crai).map { meta, cram, crai -> tuple(meta, cram, crai) }
-    SAMTOOLS_STATS(ch_samstats_input, fasta)
+    samstats_input = cram
+        .join(crai)
+        .map { meta, cram_file, crai_file ->
+            tuple(meta, cram_file, crai_file)
+        }
+    samtools_reference = fasta
+        .join(fai)
+        .map { meta, fasta_file, fai_file ->
+            tuple(meta, fasta_file, fai_file)
+        }
+        .collect()
+    SAMTOOLS_STATS(samstats_input, samtools_reference)
     multiqc_files = multiqc_files.mix(SAMTOOLS_STATS.out.stats.map { tuple -> tuple[1] })
 
     // Coverage calculation with mosdepth
-    ch_mosdepth_input = ch_cram.join(ch_crai).map { meta, cram, crai -> tuple(meta, cram, crai, []) }
-    MOSDEPTH(ch_mosdepth_input, fasta)
+    mosdepth_input = cram.join(crai).map { meta, cram_file, crai_file -> tuple(meta, cram_file, crai_file, []) }
+    MOSDEPTH(mosdepth_input, fasta)
     multiqc_files = multiqc_files.mix(MOSDEPTH.out.global_txt.map { _meta, file -> file }).mix(MOSDEPTH.out.summary_txt.map { _meta, file -> file })
 
     emit:
-    cram = ch_cram
-    crai = ch_crai
+    cram
+    crai
     multiqc_files
     versions
 }

@@ -83,19 +83,19 @@
                     "preseq": "3.2.0"
                 },
                 "SAMTOOLS_CONVERT": {
-                    "samtools": "1.22.1"
+                    "samtools": "1.23.1"
                 },
                 "SAMTOOLS_FAIDX": {
-                    "samtools": "1.22.1"
+                    "samtools": "1.23.1"
                 },
                 "SAMTOOLS_INDEX": {
-                    "samtools": "1.22.1"
+                    "samtools": "1.23.1"
                 },
                 "SAMTOOLS_MERGE": {
-                    "samtools": "1.22.1"
+                    "samtools": "1.23.1"
                 },
                 "SAMTOOLS_STATS": {
-                    "samtools": "1.22.1"
+                    "samtools": "1.23.1"
                 },
                 "VCFTOOLS_THIN": {
                     "vcftools": "0.1.16"
@@ -441,7 +441,7 @@
                 "variant_calling/gatk/stats/called_variants.gatk.bcftools_stats.txt"
             ]
         ],
-        "timestamp": "2026-03-18T16:56:50.435988163",
+        "timestamp": "2026-03-19T09:30:15.445958848",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
