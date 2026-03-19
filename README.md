@@ -132,25 +132,38 @@ nextflow run nf-core/genomicrelatedness \
 
 > **Note:** If the parameter `--bootstrapping_rounds` is provided, it must be an integer between 1 and 3.
 
-> [!WARNING]
-> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
+> [!NOTE]
+> Please provide pipeline parameters via the Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
+
+```json
+{
+    "email": "your@email.adress",
+    "email_on_fail": "your@email.adress",
+    "input": "./samplesheet.csv",
+    "fasta": "REFGENOME.fna",
+    "bootstrapping_rounds": 1,
+    "target_number_of_interval_files": 150,
+    "include_scaffolds": "./scaffolds_include.txt",
+    "skip_relatedness_estimation": true
+}
+```
 
 For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/genomicrelatedness/usage) and the [parameter documentation](https://nf-co.re/genomicrelatedness/parameters).
 
 ## Pipeline output
 
+The output of the preprocess subworkflow consists of comprehensive quality control reports via MultiQC, including metrics on library complexity, coverage, and duplication rates, and the CRAM files ready for the subsequent analysis steps. The BQSR workflow produces diagnostic plots to evaluate the effectiveness of recalibration and the recalibrated CRAM files for further analyses. The output of the genotyping section includes the intermediary and final variant set. The output of the relatedness estimation section is the pairwise relatedness matrices. 
 To see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/genomicrelatedness/results) tab on the nf-core website pipeline page.
 For more details about the output files and reports, please refer to the
 [output documentation](https://nf-co.re/genomicrelatedness/output).
 
 ## Credits
 
-nf-core/genomicrelatedness was originally written by [Thomas Isensee](https://github.com/thomasisensee). This work was carried out as part of the [bwRSE4HPC](https://www.bwrse4hpc.de/) initiative, funded by the Baden-Württemberg Ministry of Science, Research and Arts, coordinated by the Scientific Software Center (SSC) at Heidelberg University and the Scientific Computing Center (SCC) at KIT.
+nf-core/genomicrelatedness was originally written by [Thomas Isensee](https://github.com/thomasisensee) in collaboration with [Gisela H. Kopp](https://github.com/GiselaHKopp) and Till Dorendorf. This work was carried out as part of the [bwRSE4HPC](https://www.bwrse4hpc.de/) initiative, funded by the Baden-Württemberg Ministry of Science, Research and Arts, coordinated by the Scientific Software Center (SSC) at Heidelberg University and the Scientific Computing Center (SCC) at KIT.
 
-We thank the following people for their extensive assistance in the development of this pipeline:
+We thank the following people for their extensive assistance in the early stages of the development of this pipeline:
 
-- [Gisela H. Kopp](https://github.com/GiselaHKopp)
-- Till Dorendorf
+- [Benjamin C. C. Hume](https://github.com/didillysquat) 
 
 ## Contributions and Support
 
