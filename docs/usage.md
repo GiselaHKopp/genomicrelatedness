@@ -31,27 +31,33 @@ The pipeline will auto-detect whether a sample is single- or paired-end using th
 | `spring_2` | Full path to SPRING file for Illumina short reads 2. File can have the extension ".fq.gz.spring" or ".fastq.gz.spring".                                                                |
 | `cram`     | Full path to CRAM file.                                                                                                                                                                |
 | `bam`      | Full path to BAM file.                                                                                                                                                                 |
+| `RGID`     | Unique run identifier following SAM/BAM file format specification, e.g. {FLOWCELL}.{LANE}.                                                                                             |
+| `RGLB`     | Sequencing library identifier following SAM/BAM file format specification.                                                                                                             |
+| `RGPL`     | Sequencing technology or platform following SAM/BAM file format specification, e.g. ILLUMINA.                                                                                          |
+| `RGPU`     | Platform unit following SAM/BAM file format specification, e.g {FLOWCELL}.{LANE}.{SAMPLE}.                                                                                             |
+| `RGSM`     | Custom individual sample name. Can equal the `sample`column but might deviate if multiple samples of the same individual are analyzed.                                                 |
+
 
 A collection of samplesheet example contents consisting of both single- and paired-end data is listed below.
 
 ```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2,RGID,RGLB,RGPL,RGPU,RGSM
-S22,mpg_L17019-1_W1706_S22_R1_001.fastq.gz,/mpg_L17019-1_W1706_S22_R2_001.fastq.gz,1,lib1,ILLUMINA,unit1,RGID1_S22
-S23,mpg_L17020-1_W1707_S23_R1_001.fastq.gz,mpg_L17020-1_W1707_S23_R2_001.fastq.gz,2,lib1,ILLUMINA,unit1,RGID2_S23
-S24,mpg_L17020-1_W1707_S23_R1_001.fastq.gz,,2,lib1,ILLUMINA,unit1,RGID2_S23
+Sample1,./input_fastq/L17019-1_W1706_Sample1_R1_001.fastq.gz,./input_fastq/L17019-1_W1706_Sample1_R2_001.fastq.gz,FC1_L17019,lib1,ILLUMINA,FC1_L17019_Sample1a,Sample1a
+Sample2,./input_fastq/L17020-1_W1707_Sample2_R1_001.fastq.gz,./input_fastq/L17020-1_W1707_Sample2_R2_001.fastq.gz,FC1_L17020,lib2,ILLUMINA,FC1_L17020_Sample2a,Sample2a
+Sample3,./input_fastq/L17020-1_W1707_Sample3_R1_001.fastq.gz,,FC1_L17020,lib3,ILLUMINA,FC1_L17020_Sample3a,Sample3a
 ```
 
 ```csv title="samplesheet.csv"
 sample,cram
-S22,mpg_L17019-1_W1706_S22_R1_001.cram,1,lib1,ILLUMINA,unit1,RGID1_S22
-S23,mpg_L17020-1_W1707_S23_R1_001.cram,2,lib1,ILLUMINA,unit1,RGID2_S23
+Sample1,./input_cram/L17019-1_W1706_Sample1_R1_001.cram,FC1_L17019,lib1,ILLUMINA,FC1_L17019_Sample1a,Sample1a
+Sample2,./input_cram/L17020-1_W1707_Sample2_R1_001.cram,FC1_L17020,lib2,ILLUMINA,FC1_L17020_Sample2a,Sample2a
 ```
 
 ```csv title="samplesheet.csv"
 sample,fastq_1,cram
-S22,,mpg_L17019-1_W1706_S22_R1_001.cram
-S23,,mpg_L17020-1_W1707_S23_R1_001.cram
-S24,mpg_L17020-1_W1707_S23_R1_001.fastq.gz,
+Sample1,,./input_cram/L17019-1_W1706_Sample1_R1_001.cram
+Sample2,,./input_cram/L17020-1_W1707_Sample2_R1_001.cram
+Sample3,./input_fastq/L17020-1_W1707_Sample3_R1_001.fastq.gz,
 ```
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
@@ -95,8 +101,33 @@ input: './samplesheet.csv'
 outdir: './results/'
 <...>
 ```
+Alternatively, the params file can be provided in json format:
+
+```bash
+nextflow run nf-core/genomicrelatedness -profile docker -params-file params.json
+```
+
+with:
+
+```json title="params.json"
+{
+  "input": "./samplesheet.csv",
+  "outdir": "./results/",
+  <...>
+}
+```
 
 You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-co.re/launch).
+
+If you do not want to run certain stages of the pipeline, you can specify this in the parameters.
+
+| Column     | if set to true...                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------------ |
+| `hard_filter_variants`       | Performs hard filtering of variants if no high confidence variant is provided  |
+| `skip_bqsr`                  | Does not perform Base Quality Score Recalibration                              |
+| `skip_variant_calling`       | Does not perform variant calling using GATK4 and bcftools                      |
+| `skip_intersection_thinning` | Does not perform intersection of called variants                               |
+| `skip_relatedness_estimation`| Does not perform relatedness estimation                                        |
 
 ### Updating the pipeline
 
