@@ -105,9 +105,20 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 ### Base Quality Score Recalibration
 
 ## Variant Calling
+In the third section, **genotyping**, the recalibrated CRAMs are processed to generate genotype likelihoods and multi-sample VCFs. Two variant calling approaches, bcftools and GATK4, are chosen to mitigate caller-specific biases. The subworkflow *call_variants_gatk* is executed like in the previous section,  the subworkflow *call_variants_bcftools* converts the recalibrated CRAM with samtools `convert`, employs bcftools `mpileup` (--output-type z -d 100) and `call` (--output-type z -m -v –write-index=tbi) per scaffold, and concatenates results into a full cohort VCF with `concat` (--output-type z –write-index=tbi). The callsets from both subworkflows are accompanied by variant-level quality summaries from bcftools `stats`. This stage outputs two harmonized, multi-sample VCFs — one from GATK and one from bcftools. Both subworkflows run in parallel. Additionally, summary statistics are produced such as transition/transversion ratios that can be used to judge the quality of/improvement in the called variants and whether subsequent rounds of BQSR could be beneficial. Finally, in the subworkflow `intersect_variants`, the two callsets are intersected using bcftools `isec` to retain only sites called by both subworkflows and filtered using bcftools `exclude` (using parameter -include_scaffolds or -exclude_scaffolds), e.g. to exclude mitochondrial or gonosomal scaffolds or only include autosomal scaffolds, and `thin` (--remove-filtered-all –remove-indels –maf 0.025 –recode –recode-INFO-all –max-missing 0.75) producing the final variant set. First,  Optionally, mitochondrial and gonosomal scaffolds can be excluded with vcftools. The shared variant set is then filtered and thinned with VCFtools (Danecek et al., 2011)  (removing indels, sites with minor allele frequency below 0.025, and sites missing in more than 25% of samples; default values) to reduce linkage disequilibrium and mitigate ascertainment bias.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `variant_calling/`
+  - `bcftools/`: directory containing the called variants as vcf and tbi files for each interval, the individual bam files per sample (in the subdirectory bam) and the merged vcf and tbi file (in the subdirectory merged).
+  - `gatk/`: directory containing the called variants for each individuals as vcf and tbi files for each interval, the merged vcf and tbi file (in the subdirectory merged) and a text file with variant statistics (in the subfolder stats).
+  
+</details>
 
 ## Relatedness Estimation
-The fourth section, relatedness estimation, uses the final variant set to produce robust estimates of pairwise relatedness suitable for low-coverage whole-genome sequencing data. It infers relatedness and inbreeding from genotype likelihood data.using NgsRelate v2 as implemented in ANGSD  (Korneliussen and Moltke, 2015; Hanghøj et al., 2019). The final output is a pairwise relatedness matrix.
+The fourth section, **relatedness estimation**, uses the final variant set to produce robust estimates of pairwise relatedness suitable for low-coverage whole-genome sequencing data. It infers relatedness and inbreeding from genotype likelihood data.using NgsRelate v2 as implemented in ANGSD  (Korneliussen and Moltke, 2015; Hanghøj et al., 2019). The final output is a pairwise relatedness matrix.
+
 <details markdown="1">
 <summary>Output files</summary>
 
