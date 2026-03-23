@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/genomicrelatedness/master/nextflow_schema.json",
     "title": "nf-core/genomicrelatedness pipeline parameters",
-    "description": "A workflow for sWGS genotype likelihood calling and relatedness estimation",
+    "description": "A workflow for lcWGS genotype likelihood calling and relatedness estimation",
     "type": "object",
     "$defs": {
         "input_output_options": {
