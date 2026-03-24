@@ -112,7 +112,7 @@ Library complexity is assessed with [`preseq -c_curve`](https://preseq.readthedo
 <summary>Output files</summary>
 
 - `preprocessing/`
-  - `alignment/`: directory containing the bam files for each sample_RGID (in the subdirectory bam/bwamem2) and the deduplicated cram and crai files for each individual with corresponding deduplication metrics (in the subdirectory cram).
+  - `alignment/`: directory containing the bam files for each sample_RGID (in the subdirectory `bam/bwamem2/`) and the deduplicated cram and crai files for each individual with corresponding deduplication metrics (in the subdirectory `cram/`).
   - `coverage/`: directory containing text files with coverage statistics output from mosdepth (global and summarized for each contig) for each individual.
   - `fastp/`: directory containing for each individual log, html and json files of the fastp preprocessing statistics, as well as trimmed and filterd fastq files. 
   - `preseq/`: directory containing the estimates on library complexity for each individual provided by c-Curve and lc_extrap
@@ -129,15 +129,15 @@ In the absence of a known variant set, the workflow first performs an internal b
 The subworkflow `variant_filtering` then uses hard filter criteria to create a reference variant set in vcf format with et (.vcf) with [`GATK4 -VariantFiltration`](https://gatk.broadinstitute.org/hc/en-us/articles/360037434691-VariantFiltration) (Qual >=100, QD < 2.0; MQ < 35.0; FS >60; HaplotypeScore > 13.0; MQRankSum < -12.5; ReadPosRankSum < -8.0) and [`GATK4 -SelectVariants`](https://gatk.broadinstitute.org/hc/en-us/articles/360037055952-SelectVariants).
 
 ### Base Quality Score Recalibration
-In the subworkflow `BQSR` [`GATK4 -BaseRecalibrator`](https://gatk.broadinstitute.org/hc/en-us/articles/360036898312-BaseRecalibrator) takes as input the output from the preprocessing section and the vcf file with the reference variant set (either the one produced previously or an existing one) to compute recalibration tables. These are compiled with [`GATK4 -GatherBQSRReport`](https://gatk.broadinstitute.org/hc/en-us/articles/360037433771-GatherBQSRReports) and applied with [`GATK4 -ApplyBQSR`](https://gatk.broadinstitute.org/hc/en-us/articles/360037268511-ApplyBQSR) followed by [`samtools -merge`](https://www.htslib.org/doc/samtools-merge.html) and [`samtools -index`](https://www.htslib.org/doc/samtools-index.html) to produce recalibrated CRAMs. The BQSR subworkflow is designed to be iterated, using the recalibrated CRAM files instead of the ones from the preprocessing section. For each round, ith [`GATK4 -AnalyzeCovariates`](https://gatk.broadinstitute.org/hc/en-us/articles/360037066912-AnalyzeCovariates) generates diagnostic plots to evaluate the effectiveness of recalibration, and bcftools `stats` (Danecek et al., 2021) produces variant quality summaries.
+In the subworkflow `BQSR` [`GATK4 -BaseRecalibrator`](https://gatk.broadinstitute.org/hc/en-us/articles/360036898312-BaseRecalibrator) takes as input the output from the preprocessing section and the vcf file with the reference variant set (either the one produced previously or an existing one) to compute recalibration tables. These are compiled with [`GATK4 -GatherBQSRReport`](https://gatk.broadinstitute.org/hc/en-us/articles/360037433771-GatherBQSRReports) and applied with [`GATK4 -ApplyBQSR`](https://gatk.broadinstitute.org/hc/en-us/articles/360037268511-ApplyBQSR) followed by [`samtools -merge`](https://www.htslib.org/doc/samtools-merge.html) and [`samtools -index`](https://www.htslib.org/doc/samtools-index.html) to produce recalibrated CRAMs. The BQSR subworkflow is designed to be iterated, using the recalibrated CRAM files instead of the ones from the preprocessing section. For each round, ith [`GATK4 -AnalyzeCovariates`](https://gatk.broadinstitute.org/hc/en-us/articles/360037066912-AnalyzeCovariates) generates diagnostic plots to evaluate the effectiveness of recalibration, and[`bcftools -stats`](https://samtools.github.io/bcftools/bcftools.html#stats) produces variant quality summaries.
 
 <details markdown="1">
 <summary>Output files</summary>
 
 - `bootstrapping/round_X`
-  - `bqsr/`: directory containing the cram files for each individual and interval (in the subdirectory cram) as well as the recalibrated cram with corresponding index .crai files merged for each individual (in the subdirectory cram/merged), and the recalibration diagnostics as pdf and csv files for each sample (in the subdirectory qc).
+  - `bqsr/`: directory containing the cram files for each individual and interval (in the subdirectory `cram/`) as well as the recalibrated cram with corresponding index .crai files merged for each individual (in the subdirectory `cram/merged/`), and the recalibration diagnostics as pdf and csv files for each sample (in the subdirectory `qc/`).
   - `stats/`: directory containing the text file with variant statistics.
-  - `variants/`: directory containing the called variants for each individuals as vcf and tbi files for each interval, the merged vcf and tbi file (in the subdirectory merged) and the hard filtered variant set (in the subdirectory filtered).  
+  - `variants/`: directory containing the called variants for each individuals as vcf and tbi files for each interval, the merged vcf and tbi file (in the subdirectory `merged/`) and the hard filtered variant set (in the subdirectory `filtered/`).  
 </details>
 
 ## Variant Calling Section
@@ -147,8 +147,8 @@ In the third section, **variant calling**, the recalibrated CRAMs are processed 
 <summary>Output files</summary>
 
 - `variant_calling/`
-  - `bcftools/`: directory containing the called variants as vcf and tbi files for each interval, the individual bam files per sample (in the subdirectory bam) and the merged vcf and tbi file (in the subdirectory merged).
-  - `gatk/`: directory containing the called variants for each individuals as vcf and tbi files for each interval, the merged vcf and tbi file (in the subdirectory merged) and a text file with variant statistics (in the subfolder stats).
+  - `bcftools/`: directory containing the called variants as vcf and tbi files for each interval, the individual bam files per sample (in the subdirectory `bam/`) and the merged vcf and tbi file (in the subdirectory `merged/`).
+  - `gatk/`: directory containing the called variants for each individuals as vcf and tbi files for each interval, the merged vcf and tbi file (in the subdirectory `merged/`) and a text file with variant statistics (in the subfolder `stats/`).
   
 </details>
 
