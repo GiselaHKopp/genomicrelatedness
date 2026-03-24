@@ -23,7 +23,7 @@
 
 **nf-core/genomicrelatedness** is a bioinformatics pipeline for estimating genomic relatedness from low-coverage whole-genome sequencing (lcWGS) data. It performs read mapping, optional base quality score recalibration, variant calling with GATK and BCFtools, and downstream relatedness estimation. For many non-model organisms, no high-confidence variant set is available. The pipeline provides an automated multi-round bootstrapping workflow to generate one. The resulting standardized outputs include genotype likelihood-based variant calls, filtered VCF files, and relatedness estimates from several independent algorithms, enabling robust inference even from very sparse sequencing data.
 
-![overview](assets/genomicrelatedness_global_metro_map.png)
+![overview](docs/images/nf-core-genomicrelatedness-metro-map.png)
 
 The pipeline consists of the following four main sections that perform the major processing steps:
 
