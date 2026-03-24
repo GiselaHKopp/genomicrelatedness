@@ -37,7 +37,6 @@ The pipeline will auto-detect whether a sample is single- or paired-end using th
 | `RGPU`     | Platform unit following SAM/BAM file format specification, e.g {FLOWCELL}.{LANE}.{SAMPLE}.                                                                                             |
 | `RGSM`     | Custom individual sample name. Can equal the `sample`column but might deviate if multiple samples of the same individual are analyzed.                                                 |
 
-
 A collection of samplesheet example contents consisting of both single- and paired-end data is listed below.
 
 ```csv title="samplesheet.csv"
@@ -101,6 +100,7 @@ input: './samplesheet.csv'
 outdir: './results/'
 <...>
 ```
+
 Alternatively, the params file can be provided in json format:
 
 ```bash
@@ -121,13 +121,13 @@ You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-c
 
 If you do not want to run certain stages of the pipeline, you can specify this in the parameters.
 
-| Column     | if set to true...                                                                                |
-| ---------- | ------------------------------------------------------------------------------------------------ |
-| `hard_filter_variants`       | Performs hard filtering of variants if no high confidence variant is provided  |
-| `skip_bqsr`                  | Does not perform Base Quality Score Recalibration                              |
-| `skip_variant_calling`       | Does not perform variant calling using GATK4 and bcftools                      |
-| `skip_intersection_thinning` | Does not perform intersection of called variants                               |
-| `skip_relatedness_estimation`| Does not perform relatedness estimation                                        |
+| Column                        | if set to true...                                                             |
+| ----------------------------- | ----------------------------------------------------------------------------- |
+| `hard_filter_variants`        | Performs hard filtering of variants if no high confidence variant is provided |
+| `skip_bqsr`                   | Does not perform Base Quality Score Recalibration                             |
+| `skip_variant_calling`        | Does not perform variant calling using GATK4 and bcftools                     |
+| `skip_intersection_thinning`  | Does not perform intersection of called variants                              |
+| `skip_relatedness_estimation` | Does not perform relatedness estimation                                       |
 
 ### Updating the pipeline
 
