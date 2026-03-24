@@ -99,9 +99,18 @@ sample-2,sample2_S1_L004_R1_001.fastq.gz,sample2_S1_L004_R2_001.fastq.gz,FC1_L00
 
 ```
 
-The sample sheet is provided as a comma-separated value (CSV) file, with one line corresponding to one paired-read set and eight defined columns. The first column “sample” holds the individual name enabling cross-referencing to other datasets for downstream analyses (may refer to individual or sample depending on the unit of interest). Columns “fastq_1” and “fastq_2” hold the filepaths to the paired-end sequencing raw reads for forward and reverse read, respectively. The following five columns give more details on the production of the sequencing data based on [`SAM/BAM file format specification`]() (The SAM/BAM Format Specification Work...), required for the preprocessing section by the GATK4 (McKenna et al. 2010; Van der Auwera and O'Connor 2020; GATK 2024): “RGID” holds the unique run identifier, e.g. {FLOWCELL}.{LANE}; “RGLB” holds the library identifier; “RGPL” holds the sequencing technology or platform, e.g. ILLUMINA; ”RGPU” holds the platform unit, e.g. {FLOWCELL}.{LANE}.{SAMPLE};”RGSM” holds the individual sample name (hence can equal the “ID” column but might deviate if multiple samples of the same individual are analyzed). Optionally, more columns can be added, for example containing sex and group information.
+The sample sheet is provided as a comma-separated value (CSV) file, with one line corresponding to one paired-read set and eight defined columns.
 
-Alternatively, the samplesheet can be filled with fastq files encoded in SPRING format, or the preprocessing steps can be skipped entirely when BAM or CRAM files are provided.
+1. The first column **sample** holds the individual name enabling cross-referencing to other datasets for downstream analyses (may refer to individual or sample depending on the unit of interest).
+
+2. Columns **fastq_1** and **fastq_2** hold the filepaths to the paired-end sequencing raw reads for forward and reverse read, respectively. Alternatively, the samplesheet can be filled with fastq files encoded in SPRING format (column headers **spring_1** and **spring_2**), or the preprocessing steps can be skipped entirely when BAM (column header **bam**) or CRAM files (column header **cram**) are provided.
+3. The following five columns give more details on the production of the sequencing data based on [`SAM/BAM file format specification`]() (The SAM/BAM Format Specification Work...), required for the preprocessing section by the GATK4 (McKenna et al. 2010; Van der Auwera and O'Connor 2020; GATK 2024). **RGID** holds the unique run identifier, e.g. {FLOWCELL}.{LANE}
+4. **RGLB** holds the library identifier
+5. **RGPL** holds the sequencing technology or platform, e.g. ILLUMINA
+6. **RGPU** holds the platform unit, e.g. {FLOWCELL}.{LANE}.{SAMPLE}
+7. **RGSM** holds the individual sample name (hence can equal the sample column but might deviate if multiple samples of the same individual are analyzed).
+
+Optionally, more columns can be added, for example containing sex and group information.
 
 Now, you can run the pipeline using:
 
@@ -118,6 +127,8 @@ nextflow run nf-core/genomicrelatedness \
 
 > [!NOTE]
 > Please provide pipeline parameters via the Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
+
+`params.json`:
 
 ```json
 {
