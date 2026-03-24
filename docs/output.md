@@ -2,8 +2,8 @@
 
 ## Introduction
 
-This document describes the output produced by the nfcore/genomicrelatedness pipeline. The output primarily consists of the following main components: output files (e.g. CRAM, BAM or VCF files), and summary statistics of the whole run presented in a [`MultiQC`](https://multiqc.info) report. Intermediate files and module-specific statistics files are also retained. 
-The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory. The results directory of the pipeline needs to be specified with the `--outdir`flag when running the pipeline. During the run, intermediate files will be written to the work directory, which can be specified with the `-work-dir`parameter.
+This document describes the output produced by the nfcore/genomicrelatedness pipeline. The output primarily consists of the following main components: output files (e.g. txt, CRAM, BAM or VCF files), and summary statistics of the whole run presented in a [`MultiQC`](https://multiqc.info) report. Intermediate files and module-specific statistics files are also retained. 
+The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory. The results directory of the pipeline needs to be specified with the `--outdir` flag when running the pipeline. During the run, intermediate files will be written to the work directory, which can be specified with the `-work-dir`parameter.
 
 ```text
 {outdir}
@@ -71,20 +71,20 @@ work/
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
-- [Preprocessing](#preprocessing)
+- [Preprocessing Section](#preprocessing)
   - [Prepare Reference Genome](#prepare-reference-genome)
   - [Prepare Intervals](#prepare-intervals)
   - [Prepare Input Files](#prepare-input-files)
   - [Map to Reference](#map-to-reference)
   - [Mark Duplicates](#mark-duplicates)
-- [Bootstrapping](#bootstrapping)
+- [Bootstrapping Section](#bootstrapping)
   - [Call Variants](#call-variants)
   - [Hard Filter Variants](#hard-filter-variants)
   - [Base Quality Score Recalibration](#base-quality-score-recalibration)
-- [Variant Calling](#variant-calling)
+- [Variant Calling Section](#variant-calling)
 - [Relatedness Estimation](#relatedness-estimation)
 
-## Preprocessing
+## Preprocessing section
 
 ### Prepare Reference Genome
 
@@ -96,16 +96,29 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 ### Mark Duplicates
 
-## Bootstrapping
+## Bootstrapping Section
+The second section, **bootstrapping**, corrects systematic errors introduced during sequencing by recalibrating base quality scores. If an external VCF file with a reference variant set is provided this section directly starts with the BQSR subworkflow.
 
 ### Call Variants
+In the absence of a known variant set, the workflow first performs an internal bootstrapping procedure to create a temporary high-confidence variant resource. The cram files from the Preprocessing section, the bed file with intervals from the `prepare_intervals` subworkflow, and the fasta reference genome are combined and used for an initial round of variant calling with the subworkflow `GATK_variant_calling`. GATK4’s `HaplotypeCaller` produces gVCFs for each sample and scaffold (-ERC GVCF), which are then combined with `GenomicsDBImport` and jointly genotyped with `GenotypeGVCFs` and `mergevcfs`.
 
 ### Hard Filter Variants
+The subworkflow `variant_filtering` then uses hard filter criteria to create a reference variant set in vcf format with GATK4’s `variantFiltration` (Qual >=100, QD < 2.0; MQ < 35.0; FS >60; HaplotypeScore > 13.0; MQRankSum < -12.5; ReadPosRankSum < -8.0) and `SelectVariants` (--exclude-filtered).
 
-### Base Quality Score Recalibration
+### Base Quality Score Recalibrationn
+In the subworkflow `BQSR` GATK4’s `BaseRecalibrator` takes as input the output from the preprocessing section and the vcf file with the reference variant set (either the one produced previously or an existing one) to compute recalibration tables. These are compiled with `GatherBQSRReport` and applied with `ApplyBQSR` followed by Samtools’ `merge` and `index` to produce recalibrated CRAMs. The BQSR subworkflow is designed to be iterated, using the recalibrated CRAM files instead of the ones from the preprocessing section. For each round, GATK4’s `AnalyzeCovariates` generates diagnostic plots to evaluate the effectiveness of recalibration, and bcftools `stats` (Danecek et al., 2021) produces variant quality summaries.
 
-## Variant Calling
-In the third section, **genotyping**, the recalibrated CRAMs are processed to generate genotype likelihoods and multi-sample VCFs. Two variant calling approaches, bcftools and GATK4, are chosen to mitigate caller-specific biases. The subworkflow *call_variants_gatk* is executed like in the previous section,  the subworkflow *call_variants_bcftools* converts the recalibrated CRAM with samtools `convert`, employs bcftools `mpileup` (--output-type z -d 100) and `call` (--output-type z -m -v –write-index=tbi) per scaffold, and concatenates results into a full cohort VCF with `concat` (--output-type z –write-index=tbi). The callsets from both subworkflows are accompanied by variant-level quality summaries from bcftools `stats`. This stage outputs two harmonized, multi-sample VCFs — one from GATK and one from bcftools. Both subworkflows run in parallel. Additionally, summary statistics are produced such as transition/transversion ratios that can be used to judge the quality of/improvement in the called variants and whether subsequent rounds of BQSR could be beneficial. Finally, in the subworkflow `intersect_variants`, the two callsets are intersected using bcftools `isec` to retain only sites called by both subworkflows and filtered using bcftools `exclude` (using parameter -include_scaffolds or -exclude_scaffolds), e.g. to exclude mitochondrial or gonosomal scaffolds or only include autosomal scaffolds, and `thin` (--remove-filtered-all –remove-indels –maf 0.025 –recode –recode-INFO-all –max-missing 0.75) producing the final variant set. First,  Optionally, mitochondrial and gonosomal scaffolds can be excluded with vcftools. The shared variant set is then filtered and thinned with VCFtools (Danecek et al., 2011)  (removing indels, sites with minor allele frequency below 0.025, and sites missing in more than 25% of samples; default values) to reduce linkage disequilibrium and mitigate ascertainment bias.
+<details markdown="1">
+<summary>Output files</summary>
+
+- `bootstrapping/`
+  - `bqsr/`: directory containing the cram files for each individual and interval (in the subdirectory cram) as well as the recalibrated cram with corresponding index .crai files merged for each individual (in the subdirectory cram/merged), and the recalibration diagnostics as pdf and csv files for each sample (in the subdirectory qc).
+  - `stats/`: directory containing the text file with variant statistics.
+  - `variants/`: directory containing the called variants for each individuals as vcf and tbi files for each interval, the merged vcf and tbi file (in the subdirectory merged) and the hard filtered variant set (in the subdirectory filtered).  
+</details>
+
+## Variant Calling Section
+In the third section, **variant calling**, the recalibrated CRAMs are processed to generate genotype likelihoods and multi-sample VCFs. Two variant calling approaches, bcftools and GATK4, are chosen to mitigate caller-specific biases. The subworkflow *call_variants_gatk* is executed like in the previous section,  the subworkflow *call_variants_bcftools* converts the recalibrated CRAM with samtools `convert`, employs bcftools `mpileup` (--output-type z -d 100) and `call` (--output-type z -m -v –write-index=tbi) per scaffold, and concatenates results into a full cohort VCF with `concat` (--output-type z –write-index=tbi). The callsets from both subworkflows are accompanied by variant-level quality summaries from bcftools `stats`. This stage outputs two harmonized, multi-sample VCFs — one from GATK and one from bcftools. Both subworkflows run in parallel. Additionally, summary statistics are produced such as transition/transversion ratios that can be used to judge the quality of/improvement in the called variants and whether subsequent rounds of BQSR could be beneficial. Finally, in the subworkflow `intersect_variants`, the two callsets are intersected using bcftools `isec` to retain only sites called by both subworkflows and filtered using bcftools `exclude` (using parameter -include_scaffolds or -exclude_scaffolds), e.g. to exclude mitochondrial or gonosomal scaffolds or only include autosomal scaffolds, and `thin` (--remove-filtered-all –remove-indels –maf 0.025 –recode –recode-INFO-all –max-missing 0.75) producing the final variant set. First,  Optionally, mitochondrial and gonosomal scaffolds can be excluded with vcftools. The shared variant set is then filtered and thinned with VCFtools (Danecek et al., 2011)  (removing indels, sites with minor allele frequency below 0.025, and sites missing in more than 25% of samples; default values) to reduce linkage disequilibrium and mitigate ascertainment bias.
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -116,8 +129,8 @@ In the third section, **genotyping**, the recalibrated CRAMs are processed to ge
   
 </details>
 
-## Relatedness Estimation
-The fourth section, **relatedness estimation**, uses the final variant set to produce robust estimates of pairwise relatedness suitable for low-coverage whole-genome sequencing data. It infers relatedness and inbreeding from genotype likelihood data.using NgsRelate v2 as implemented in ANGSD  (Korneliussen and Moltke, 2015; Hanghøj et al., 2019). The final output is a pairwise relatedness matrix.
+## Relatedness Estimation Section
+The fourth section, **relatedness estimation**, uses the final variant set to produce robust estimates of pairwise relatedness suitable for low-coverage whole-genome sequencing data. It infers relatedness and inbreeding from genotype likelihood data using NgsRelate v2 as implemented in ANGSD  (Korneliussen and Moltke, 2015; Hanghøj et al., 2019). The final output is a pairwise relatedness matrix.
 
 <details markdown="1">
 <summary>Output files</summary>
