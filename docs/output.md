@@ -71,40 +71,42 @@ work/
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
-- [Preprocessing Section](#preprocessing)
+- [Preprocessing Section](#preprocessing-section)
   - [Prepare Reference Genome](#prepare-reference-genome)
   - [Prepare Intervals](#prepare-intervals)
   - [Prepare Input Files](#prepare-input-files)
   - [Map to Reference](#map-to-reference)
   - [Mark Duplicates](#mark-duplicates)
   - [Preprocessing Statistics](#preprocessing-statistics)
-- [Bootstrapping Section](#bootstrapping)
+- [Bootstrapping Section](#bootstrapping-section)
   - [Call Variants](#call-variants)
   - [Hard Filter Variants](#hard-filter-variants)
   - [Base Quality Score Recalibration](#base-quality-score-recalibration)
-- [Variant Calling Section](#variant-calling)
-- [Relatedness Estimation](#relatedness-estimation)
+- [Variant Calling Section](#variant-calling-section)
+- [Relatedness Estimation Section](#relatedness-estimatio-section)
+- [MultiQC](#multiqc)
+- [Pipeline Information](#pipeline-information)
 
 ## Preprocessing section
 The first section prepares the input files for downstream analyses.
 
 ### Prepare Reference Genome
-The subworkflow `prepare-genome` indexes the reference genome with BWA-MEM2 `-index` (Li and Durbin, 2009; Li, 2013; Vasimuddin et al., 2019), creates a sequencing dictionary with the GATK4 (McKenna et al., 2010; Van der Auwera and O’Connor, 2020), and  generates a fasta index file with Samtools `-faidx` (Danecek et al., 2021), providing the basis for mapping of the sequencing reads.
+The subworkflow `prepare_genome` indexes the reference genome with [`BWA-mem2 -index`](https://bio-bwa.sourceforge.net/bwa.shtml), creates a sequencing dictionary with the [`GATK4 -createsequencedictionary`](https://gatk.broadinstitute.org/hc/en-us/articles/360036729911-CreateSequenceDictionary-Picard), and  generates a fasta index file with [`samtools -faidx`](https://www.htslib.org/doc/samtools-faidx.html), providing the basis for mapping of the sequencing reads.
 
 ### Prepare Intervals
-The subworkflow `build_intervals` builds intervals with `GAWK` and splits them, providing a computational efficiente basis for the Bootstrapping and Variant Calling Sections.
+The subworkflow `build_intervals` builds intervals with [`gawk -build_intervals`] and splits them with [`split_intervals`], providing a computational efficiente basis for the Bootstrapping and Variant Calling Sections.
 
 ### Prepare Input Files
-The raw sequencing reads are prepared for downstream analysis. The input files are the sample table, raw sequencing reads FASTQ files, and the reference genome in FASTA format. The sequencing reads undergo quality control, trimming, filtering, and merging of paired reads with Fastp (Chen, 2025).
+The raw sequencing reads are prepared for downstream analysis. The input files are the sample table, raw sequencing reads FASTQ files, and the reference genome in FASTA format. The sequencing reads undergo quality control, trimming, filtering, and merging of paired reads with [`fastp`](https://github.com/OpenGene/fastp).
 
 ### Map to Reference
-The processed sequencing reads are mapped to the reference genome with the `mem` algorithm of BWA-MEM2 (Li and Durbin, 2009; Li, 2013; Vasimuddin et al., 2019). Samtools (Danecek et al., 2021) sorts the reads and the GATK4 is used to add read groups with `AddOrReplaceReadGroups`.
+The processed sequencing reads are mapped to the reference genome with the [`BWA-mem2 -mem`](https://bio-bwa.sourceforge.net/bwa.shtml). Sorts the reads with [`samtools -sort`](https://www.htslib.org/doc/samtools-sort.html) and add read groups with [`GATK4 -addorreplacereadgroups`](https://janis.readthedocs.io/en/latest/tools/bioinformatics/gatk4/gatk4createsequencedictionary.html).
 
 ### Mark Duplicates
-Samtools merges reads stemming from the same sample with `merge`, removes duplicates with `MarkDuplicates`, and indexes with `index`, providing the cram file for further analysis.
+Reads stemming from the same sample are merged with [`samtools -merge`](https://www.htslib.org/doc/samtools-merge.html), duplicates removed with [`GATK4 -markduplicates`](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard), and indexed with [`samtools -index`](https://www.htslib.org/doc/samtools-index.html), providing the cram file for further analysis.
 
 ### Preprocessing statistics
-Library complexity is assessed with the GATK4’s `EstimateLibraryComplexity` and preseq (Deng et al., 2015, 2016) `c_curve` and `lc_extrap` (errorStrategy = ‘ignore’; maxRetries = 1). Mosdepth (Pedersen and Quinlan, 2018), samtools `stats`, and GATK4’s `CollectGcBiasMetrics` are used to summarize coverage, GC bias, and mapping statistics.
+Library complexity is assessed with [`preseq -c_curve`](https://preseq.readthedocs.io/en/latest/) and [`preseq -lcextrap`](https://preseq.readthedocs.io/en/latest/) (errorStrategy = ‘ignore’; maxRetries = 1). [`mosdepth`](https://github.com/brentp/mosdepth) and [`samtools -stats`](https://www.htslib.org/doc/samtools-stats.html) are used to summarize coverage and mapping statistics.
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -121,25 +123,25 @@ Library complexity is assessed with the GATK4’s `EstimateLibraryComplexity` an
 The second section, **bootstrapping**, corrects systematic errors introduced during sequencing by recalibrating base quality scores. If an external VCF file with a reference variant set is provided this section directly starts with the BQSR subworkflow.
 
 ### Call Variants
-In the absence of a known variant set, the workflow first performs an internal bootstrapping procedure to create a temporary high-confidence variant resource. The cram files from the Preprocessing section, the bed file with intervals from the `prepare_intervals` subworkflow, and the fasta reference genome are combined and used for an initial round of variant calling with the subworkflow `GATK_variant_calling`. GATK4’s `HaplotypeCaller` produces gVCFs for each sample and scaffold (-ERC GVCF), which are then combined with `GenomicsDBImport` and jointly genotyped with `GenotypeGVCFs` and `mergevcfs`.
+In the absence of a known variant set, the workflow first performs an internal bootstrapping procedure to create a temporary high-confidence variant resource. The cram files from the Preprocessing section, the bed file with intervals from the `prepare_intervals` subworkflow, and the fasta reference genome are combined and used for an initial round of variant calling with the subworkflow `GATK_variant_calling`. [`GATK4 -HaplotypeCaller`](https://gatk.broadinstitute.org/hc/en-us/articles/360037225632-HaplotypeCaller) produces gVCFs for each sample and scaffold (-ERC GVCF), which are then combined with [`GATK4 -GenomicsDBImport`](https://gatk.broadinstitute.org/hc/en-us/articles/360036883491-GenomicsDBImport) and jointly genotyped with [`GATK4 -GenotypeGVCFs`](https://gatk.broadinstitute.org/hc/en-us/articles/360037057852-GenotypeGVCFs) and [`GATK4 -mergevcfs`](https://gatk.broadinstitute.org/hc/en-us/articles/360036713331-MergeVcfs-Picard).
 
 ### Hard Filter Variants
-The subworkflow `variant_filtering` then uses hard filter criteria to create a reference variant set in vcf format with GATK4’s `variantFiltration` (Qual >=100, QD < 2.0; MQ < 35.0; FS >60; HaplotypeScore > 13.0; MQRankSum < -12.5; ReadPosRankSum < -8.0) and `SelectVariants` (--exclude-filtered).
+The subworkflow `variant_filtering` then uses hard filter criteria to create a reference variant set in vcf format with et (.vcf) with [`GATK4 -VariantFiltration`](https://gatk.broadinstitute.org/hc/en-us/articles/360037434691-VariantFiltration) (Qual >=100, QD < 2.0; MQ < 35.0; FS >60; HaplotypeScore > 13.0; MQRankSum < -12.5; ReadPosRankSum < -8.0) and [`GATK4 -SelectVariants`](https://gatk.broadinstitute.org/hc/en-us/articles/360037055952-SelectVariants).
 
-### Base Quality Score Recalibrationn
-In the subworkflow `BQSR` GATK4’s `BaseRecalibrator` takes as input the output from the preprocessing section and the vcf file with the reference variant set (either the one produced previously or an existing one) to compute recalibration tables. These are compiled with `GatherBQSRReport` and applied with `ApplyBQSR` followed by Samtools’ `merge` and `index` to produce recalibrated CRAMs. The BQSR subworkflow is designed to be iterated, using the recalibrated CRAM files instead of the ones from the preprocessing section. For each round, GATK4’s `AnalyzeCovariates` generates diagnostic plots to evaluate the effectiveness of recalibration, and bcftools `stats` (Danecek et al., 2021) produces variant quality summaries.
+### Base Quality Score Recalibration
+In the subworkflow `BQSR` [`GATK4 -BaseRecalibrator`](https://gatk.broadinstitute.org/hc/en-us/articles/360036898312-BaseRecalibrator) takes as input the output from the preprocessing section and the vcf file with the reference variant set (either the one produced previously or an existing one) to compute recalibration tables. These are compiled with [`GATK4 -GatherBQSRReport`](https://gatk.broadinstitute.org/hc/en-us/articles/360037433771-GatherBQSRReports) and applied with [`GATK4 -ApplyBQSR`](https://gatk.broadinstitute.org/hc/en-us/articles/360037268511-ApplyBQSR) followed by [`samtools -merge`](https://www.htslib.org/doc/samtools-merge.html) and [`samtools -index`](https://www.htslib.org/doc/samtools-index.html) to produce recalibrated CRAMs. The BQSR subworkflow is designed to be iterated, using the recalibrated CRAM files instead of the ones from the preprocessing section. For each round, ith [`GATK4 -AnalyzeCovariates`](https://gatk.broadinstitute.org/hc/en-us/articles/360037066912-AnalyzeCovariates) generates diagnostic plots to evaluate the effectiveness of recalibration, and bcftools `stats` (Danecek et al., 2021) produces variant quality summaries.
 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `bootstrapping/`
+- `bootstrapping/round_X`
   - `bqsr/`: directory containing the cram files for each individual and interval (in the subdirectory cram) as well as the recalibrated cram with corresponding index .crai files merged for each individual (in the subdirectory cram/merged), and the recalibration diagnostics as pdf and csv files for each sample (in the subdirectory qc).
   - `stats/`: directory containing the text file with variant statistics.
   - `variants/`: directory containing the called variants for each individuals as vcf and tbi files for each interval, the merged vcf and tbi file (in the subdirectory merged) and the hard filtered variant set (in the subdirectory filtered).  
 </details>
 
 ## Variant Calling Section
-In the third section, **variant calling**, the recalibrated CRAMs are processed to generate genotype likelihoods and multi-sample VCFs. Two variant calling approaches, bcftools and GATK4, are chosen to mitigate caller-specific biases. The subworkflow *call_variants_gatk* is executed like in the previous section,  the subworkflow *call_variants_bcftools* converts the recalibrated CRAM with samtools `convert`, employs bcftools `mpileup` (--output-type z -d 100) and `call` (--output-type z -m -v –write-index=tbi) per scaffold, and concatenates results into a full cohort VCF with `concat` (--output-type z –write-index=tbi). The callsets from both subworkflows are accompanied by variant-level quality summaries from bcftools `stats`. This stage outputs two harmonized, multi-sample VCFs — one from GATK and one from bcftools. Both subworkflows run in parallel. Additionally, summary statistics are produced such as transition/transversion ratios that can be used to judge the quality of/improvement in the called variants and whether subsequent rounds of BQSR could be beneficial. Finally, in the subworkflow `intersect_variants`, the two callsets are intersected using bcftools `isec` to retain only sites called by both subworkflows and filtered using bcftools `exclude` (using parameter -include_scaffolds or -exclude_scaffolds), e.g. to exclude mitochondrial or gonosomal scaffolds or only include autosomal scaffolds, and `thin` (--remove-filtered-all –remove-indels –maf 0.025 –recode –recode-INFO-all –max-missing 0.75) producing the final variant set. First,  Optionally, mitochondrial and gonosomal scaffolds can be excluded with vcftools. The shared variant set is then filtered and thinned with VCFtools (Danecek et al., 2011)  (removing indels, sites with minor allele frequency below 0.025, and sites missing in more than 25% of samples; default values) to reduce linkage disequilibrium and mitigate ascertainment bias.
+In the third section, **variant calling**, the recalibrated CRAMs are processed to generate genotype likelihoods and multi-sample VCFs. Two variant calling approaches, bcftools and GATK4, are chosen to mitigate caller-specific biases. The subworkflow *call_variants_gatk* is executed like in the previous section with [`GATK4 -HaplotypeCaller`](https://gatk.broadinstitute.org/hc/en-us/articles/360037225632-HaplotypeCaller) , [`GATK4 -GenomicsDBImport`](https://gatk.broadinstitute.org/hc/en-us/articles/360036883491-GenomicsDBImport), [`GATK4 -GenotypeGVCFs`](https://gatk.broadinstitute.org/hc/en-us/articles/360037057852-GenotypeGVCFs), [`GATK4 -mergevcfs`](https://gatk.broadinstitute.org/hc/en-us/articles/360036713331-MergeVcfs-Picard), the subworkflow *call_variants_bcftools* converts the recalibrated CRAM with samtools `convert`, employs bcftools [`bcftools -mpileup`](https://samtools.github.io/bcftools/bcftools.html#mpileup) (--output-type z -d 100) and [`bcftools -call`](https://samtools.github.io/bcftools/bcftools.html#call) (--output-type z -m -v –write-index=tbi) per scaffold, and concatenates results into a full cohort VCF with [`bcftools -concat`](https://samtools.github.io/bcftools/bcftools.html#concat) (--output-type z –write-index=tbi). The callsets from both subworkflows are accompanied by variant-level quality summaries from [`bcftools stats`](https://samtools.github.io/bcftools/bcftools.html#stats). This stage outputs two harmonized, multi-sample VCFs — one from GATK and one from bcftools. Both subworkflows run in parallel. Additionally, summary statistics are produced such as transition/transversion ratios that can be used to judge the quality of/improvement in the called variants and whether subsequent rounds of BQSR could be beneficial. Finally, in the subworkflow `intersect_variants`, the two callsets are intersected using [`bcftools -isec`](https://samtools.github.io/bcftools/bcftools.html#isec) to retain only sites called by both subworkflows and filtered using [`vcftools -exclude`](https://vcftools.sourceforge.net/man_latest.html) (using parameter -include_scaffolds or -exclude_scaffolds), e.g. to exclude mitochondrial or gonosomal scaffolds or only include autosomal scaffolds, and [`vcftools -thin`](https://vcftools.sourceforge.net/man_latest.html) (--remove-filtered-all –remove-indels –maf 0.025 –recode –recode-INFO-all –max-missing 0.75) producing the final variant set.
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -151,7 +153,7 @@ In the third section, **variant calling**, the recalibrated CRAMs are processed 
 </details>
 
 ## Relatedness Estimation Section
-The fourth section, **relatedness estimation**, uses the final variant set to produce robust estimates of pairwise relatedness suitable for low-coverage whole-genome sequencing data. It infers relatedness and inbreeding from genotype likelihood data using NgsRelate v2 as implemented in ANGSD  (Korneliussen and Moltke, 2015; Hanghøj et al., 2019). The final output is a pairwise relatedness matrix.
+The fourth section, **relatedness estimation**, uses the final variant set to produce robust estimates of pairwise relatedness suitable for low-coverage whole-genome sequencing data. It infers relatedness and inbreeding from genotype likelihood data using ANGSD's [`NgsRelatev2`](https://github.com/ANGSD/NgsRelate). The final output is a pairwise relatedness matrix.
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -166,7 +168,10 @@ The fourth section, **relatedness estimation**, uses the final variant set to pr
 </details>
 
 ### MultiQC
+[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results from the preprocessing and bootstrapping section are visualised in the report and further statistics are available in the report data directory.
 
+Results generated by MultiQC collate pipeline QC from supported tools e.g. FastP. The pipeline has special steps which also allow the software versions to be reported in the MultiQC output for future traceability. For more information about how to use MultiQC reports, see <http://multiqc.info>.
+An excellent overview of MultiQC outputs and how to interpret the various plots and values is provided in the [nf-core/eager](https://nf-co.re/eager/2.5.3/docs/output/#multiqc-report) pipeline. 
 <details markdown="1">
 <summary>Output files</summary>
 
@@ -177,11 +182,10 @@ The fourth section, **relatedness estimation**, uses the final variant set to pr
 
 </details>
 
-[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
-
-Results generated by MultiQC collate pipeline QC from supported tools e.g. FastP. The pipeline has special steps which also allow the software versions to be reported in the MultiQC output for future traceability. For more information about how to use MultiQC reports, see <http://multiqc.info>.
 
 ### Pipeline information
+[Nextflow](https://www.nextflow.io/docs/latest/tracing.html) provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.
+
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -193,5 +197,3 @@ Results generated by MultiQC collate pipeline QC from supported tools e.g. FastP
   - Parameters used by the pipeline run: `params.json`.
 
 </details>
-
-[Nextflow](https://www.nextflow.io/docs/latest/tracing.html) provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.
