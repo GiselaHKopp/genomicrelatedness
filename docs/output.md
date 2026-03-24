@@ -77,6 +77,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [Prepare Input Files](#prepare-input-files)
   - [Map to Reference](#map-to-reference)
   - [Mark Duplicates](#mark-duplicates)
+  - [Preprocessing Statistics](#preprocessing-statistics)
 - [Bootstrapping Section](#bootstrapping)
   - [Call Variants](#call-variants)
   - [Hard Filter Variants](#hard-filter-variants)
@@ -85,16 +86,36 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [Relatedness Estimation](#relatedness-estimation)
 
 ## Preprocessing section
+The first section prepares the input files for downstream analyses.
 
 ### Prepare Reference Genome
+The subworkflow `prepare-genome` indexes the reference genome with BWA-MEM2 `-index` (Li and Durbin, 2009; Li, 2013; Vasimuddin et al., 2019), creates a sequencing dictionary with the GATK4 (McKenna et al., 2010; Van der Auwera and O’Connor, 2020), and  generates a fasta index file with Samtools `-faidx` (Danecek et al., 2021), providing the basis for mapping of the sequencing reads.
 
 ### Prepare Intervals
+The subworkflow `build_intervals` builds intervals with `GAWK` and splits them, providing a computational efficiente basis for the Bootstrapping and Variant Calling Sections.
 
 ### Prepare Input Files
+The raw sequencing reads are prepared for downstream analysis. The input files are the sample table, raw sequencing reads FASTQ files, and the reference genome in FASTA format. The sequencing reads undergo quality control, trimming, filtering, and merging of paired reads with Fastp (Chen, 2025).
 
 ### Map to Reference
+The processed sequencing reads are mapped to the reference genome with the `mem` algorithm of BWA-MEM2 (Li and Durbin, 2009; Li, 2013; Vasimuddin et al., 2019). Samtools (Danecek et al., 2021) sorts the reads and the GATK4 is used to add read groups with `AddOrReplaceReadGroups`.
 
 ### Mark Duplicates
+Samtools merges reads stemming from the same sample with `merge`, removes duplicates with `MarkDuplicates`, and indexes with `index`, providing the cram file for further analysis.
+
+### Preprocessing statistics
+Library complexity is assessed with the GATK4’s `EstimateLibraryComplexity` and preseq (Deng et al., 2015, 2016) `c_curve` and `lc_extrap` (errorStrategy = ‘ignore’; maxRetries = 1). Mosdepth (Pedersen and Quinlan, 2018), samtools `stats`, and GATK4’s `CollectGcBiasMetrics` are used to summarize coverage, GC bias, and mapping statistics.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `preprocessing/`
+  - `alignment/`: directory containing the bam files for each sample_RGID (in the subdirectory bam/bwamem2) and the deduplicated cram and crai files for each individual with corresponding deduplication metrics (in the subdirectory cram).
+  - `coverage/`: directory containing text files with coverage statistics output from mosdepth (global and summarized for each contig) for each individual.
+  - `fastp/`: directory containing for each individual log, html and json files of the fastp preprocessing statistics, as well as trimmed and filterd fastq files. 
+  - `preseq/`: directory containing the estimates on library complexity for each individual provided by c-Curve and lc_extrap
+  - `stats/`: directory containing the sequencing read statistics for each individuals.  
+</details>
 
 ## Bootstrapping Section
 The second section, **bootstrapping**, corrects systematic errors introduced during sequencing by recalibrating base quality scores. If an external VCF file with a reference variant set is provided this section directly starts with the BQSR subworkflow.
