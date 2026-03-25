@@ -25,6 +25,34 @@
 
 ![overview](docs/images/nf-core-genomicrelatedness-metro-map.png)
 
+## Quick Start
+
+1. Install [`nextflow`](https://nf-co.re/usage/installation)
+
+2. Install a container environment for full pipeline reproducibility, e.g. [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/), [`Podman`](https://podman.io/), [`Shifter`](https://nersc.gitlab.io/development/shifter/how-to-use/) or [`Charliecloud`](https://hpc.github.io/charliecloud/) _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
+
+3. Download the pipeline and test it on a minimal dataset with a single command:
+
+   ```bash
+   nextflow run nf-core/genomicrelatedness -profile test,<docker/singularity/podman/shifter/charliecloud/conda/institute>
+   ```
+
+   > Many Institutes have custom config files to run nextflow pipelines available. You can check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if one exists for your Institute. Then you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment, e.g. HPC cluster.
+
+4. Start analysing your own data!
+
+   ```bash
+   nextflow run nf-core/genomicrelatedness -profile <docker/singularity/podman/conda/institute> --input 'samplesheet.csv' --fasta '<REFGENOME>.fasta' --outdir <OUTDIR>
+   ```
+
+5. Once your run has completed successfully, you'll find an overview of the run in the MultiQC report located at `./outdir/MultiQC/multiqc_report.html`
+
+See [usage docs](https://nf-co.re/genomicrelatedness/usage) for all of the available options when running the pipeline and [output docs](https://nf-co.re/genomicrelatedness/output) for performed analyses and results files.
+
+Modifications to the default pipeline are easily made using various options as described in the documentation.
+
+## Pipeline summary
+
 The pipeline consists of the following four main sections that perform the major processing steps:
 
 1. **Preprocessing section**: Prepares the input files for downstream analyses.
@@ -53,7 +81,7 @@ The pipeline consists of the following four main sections that perform the major
 
      - _Quality metrics_ of the sequencing data are compiled with [`MultiQC`](https://github.com/MultiQC/MultiQC) and include overviews of library complexity analysed with [`preseq -c_curve`](https://preseq.readthedocs.io/en/latest/) and [`preseq -lcextrap`](https://preseq.readthedocs.io/en/latest/), read mapping statics over the various preprocessing steps with [`samtools -stats`](https://www.htslib.org/doc/samtools-stats.html), and genome coverage using [`mosdepth`](https://github.com/brentp/mosdepth).
 
-2. **BQSR section**: corrects systematic errors introduced during sequencing by adjusting base quality scores.
+2. **Bootstrapping section**: corrects systematic errors introduced during sequencing by adjusting base quality scores.
    - **Variant bootstrapping (`--bootstrap_variant_set`)**: (_OPTIONAL_) If no known variant set is available, this step automatically generates one via bootsrapping. It iteratively refines and stabilises the set of high-confidence variants for downstream use.
      - _Variant calling_ performs joint variant discovery for all samples with [`GATK4 -HaplotypeCaller`](https://gatk.broadinstitute.org/hc/en-us/articles/360037225632-HaplotypeCaller), [`GATK4 -GenomicsDBImport`](https://gatk.broadinstitute.org/hc/en-us/articles/360036883491-GenomicsDBImport), [`GATK4 -GenotypeGVCFs`](https://gatk.broadinstitute.org/hc/en-us/articles/360037057852-GenotypeGVCFs), [`GATK4 -mergevcfs`](https://gatk.broadinstitute.org/hc/en-us/articles/360036713331-MergeVcfs-Picard).
 
@@ -66,7 +94,7 @@ The pipeline consists of the following four main sections that perform the major
 
      - _Iteration_ (_DEFAULT: 2 rounds_) of recalibration.
 
-3. **Genotyping section**: calls variants with different algorithms to produce genotype likelihoods for all samples. The default is that both subworkflows run in parallel, but can be adjusted to one or the other.
+3. **Variant calling section**: calls variants with different algorithms to produce genotype likelihoods for all samples. The default is that both subworkflows run in parallel, but can be adjusted to one or the other.
    - **Variant calling with GATK (`--call_variants-gatk`)** performs joint variant discovery for all samples with [`GATK4 -HaplotypeCaller`](https://gatk.broadinstitute.org/hc/en-us/articles/360037225632-HaplotypeCaller) , [`GATK4 -GenomicsDBImport`](https://gatk.broadinstitute.org/hc/en-us/articles/360036883491-GenomicsDBImport), [`GATK4 -GenotypeGVCFs`](https://gatk.broadinstitute.org/hc/en-us/articles/360037057852-GenotypeGVCFs), [`GATK4 -mergevcfs`](https://gatk.broadinstitute.org/hc/en-us/articles/360036713331-MergeVcfs-Picard).
 
    - **Variant calling with BCFtools (`--call_variants-bcftools`)** employs [`bcftools -mpileup`](https://samtools.github.io/bcftools/bcftools.html#mpileup) and [`bcftools -call`](https://samtools.github.io/bcftools/bcftools.html#call) per scaffold, and concatenates results into a full cohort VCF with [`bcftools -concat`](https://samtools.github.io/bcftools/bcftools.html#concat).
@@ -76,9 +104,9 @@ The pipeline consists of the following four main sections that perform the major
    - **Variant statistics** are produced for each subworkflow to judge the quality of the called variants.
 
 4. **Relatedness estimation section**: produces robust estimates of pairwise relatedness suitable for lcWGS data.
-   - **Maximum-likelihood estimation of relatedness from genotype likelihoods with NGSrelate (`--relatedness_ngsrelate`)** uses genotype likelihoods to infer IBD with maximum-likelihood analysis as implemented in [`NgsRelatev2`](https://github.com/ANGSD/NgsRelate).
+   - **Maximum-likelihood estimation of relatedness from genotype likelihoods with NGSrelate (`--angsd-ngsrelate`)** uses genotype likelihoods to infer IBD with maximum-likelihood analysis as implemented in [`NgsRelatev2`](https://github.com/ANGSD/NgsRelate).
 
-5. MultiQC reporting: Aggregates quality metrics across all workflow stages into a single interactive report.
+5. **MultiQC reporting**: Aggregates quality metrics across all workflow stages into a single interactive report.
 
 For detailed instructions, please refer to the [usage documentation](https://nf-co.re/genomicrelatedness/usage).
 
