@@ -25,6 +25,37 @@
 
 ![overview](docs/images/nf-core-genomicrelatedness-metro-map.png)
 
+## Quick Start
+
+1. Install [`nextflow`](https://nf-co.re/usage/installation)
+
+2. Install a container environment for full pipeline reproducibility, e.g. [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/), [`Podman`](https://podman.io/), [`Shifter`](https://nersc.gitlab.io/development/shifter/how-to-use/) or [`Charliecloud`](https://hpc.github.io/charliecloud/) _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
+
+3. Download the pipeline and test it on a minimal dataset with a single command:
+
+    ```bash
+    nextflow run nf-core/genomicrelatedness -profile test,<docker/singularity/podman/shifter/charliecloud/conda/institute>
+    ```
+
+    > Many Institutes have custom config files to run nextflow pipelines available. You can check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if one exists for your Institute. Then you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment, e.g. HPC cluster.
+    
+
+
+4. Start analysing your own data!
+
+    ```bash
+    nextflow run nf-core/genomicrelatedness -profile <docker/singularity/podman/conda/institute> --input 'samplesheet.csv' --fasta '<REFGENOME>.fasta' --outdir <OUTDIR>
+    ```
+
+5. Once your run has completed successfully, you'll find an overview of the run in the MultiQC report located at `./outdir/MultiQC/multiqc_report.html`
+
+
+See [usage docs](https://nf-co.re/genomicrelatedness/usage) for all of the available options when running the pipeline and [output docs](https://nf-co.re/genomicrelatedness/output) for performed analyses and results files.
+
+Modifications to the default pipeline are easily made using various options as described in the documentation.
+
+## Pipeline summary
+
 The pipeline consists of the following four main sections that perform the major processing steps:
 
 1. **Preprocessing section**: Prepares the input files for downstream analyses.
