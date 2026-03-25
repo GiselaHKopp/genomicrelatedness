@@ -21,17 +21,24 @@ process ANGSD_NGSRELATE {
     def args = task.ext.args ?: ''
     def prefix   = task.ext.prefix ?: "${meta.id}"
     def args_list = args.tokenize()
-    def forbidden_args = ["-h", "-O", "-p"].intersect(args_list)
+    def forbidden_args = ["-h", "-O", "-p", "-z"].intersect(args_list)
 
     if (forbidden_args) {
       error "ANGSD_NGSRELATE: Reserved arguments found in task.ext.args (${forbidden_args.join(', ')}). The module sets -h, -O, and -p automatically."
     }
 
     """
+    # Extract sample IDs from VCF
+    bcftools query -l ${vcf} > ${prefix}.samples.txt
+
+    # Count number of samples (optional but often useful)
+    NSAMPLES=\$(wc -l < ${prefix}.samples.txt)
+
     ngsRelate \\
       -p ${task.cpus} \\
       -h ${vcf} \\
       -O ${prefix}.res \\
+      -z ${prefix}.samples.txt \\
       ${args}
     """
 
@@ -39,7 +46,7 @@ process ANGSD_NGSRELATE {
     def args = task.ext.args ?: ''
     def prefix   = task.ext.prefix ?: "${meta.id}"
     def args_list = args.tokenize()
-    def forbidden_args = ["-h", "-O", "-p"].intersect(args_list)
+    def forbidden_args = ["-h", "-O", "-p", "-z"].intersect(args_list)
 
     if (forbidden_args) {
       error "ANGSD_NGSRELATE: Reserved arguments found in task.ext.args (${forbidden_args.join(', ')}). The module sets -h, -O, and -p automatically."
