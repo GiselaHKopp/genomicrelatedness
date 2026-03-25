@@ -11,6 +11,7 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_geno
 
 include { ANGSD_NGSRELATE                                  } from '../modules/local/angsd/ngsrelate/main'
 include { BCFTOOLS_INDEX                                   } from '../modules/nf-core/bcftools/index/main'
+include { BCFTOOLS_QUERY                                   } from '../modules/nf-core/bcftools/query/main'
 include { GUNZIP                                           } from '../modules/nf-core/gunzip/main'
 
 include { BASE_QUALITY_SCORE_RECALIBRATION                 } from '../subworkflows/local/base_quality_score_recalibration'
@@ -256,7 +257,13 @@ workflow GENOMICRELATEDNESS {
     //
     // MODULE: ANGSD_NGSRELATE
     //
-    ANGSD_NGSRELATE(VCF_INTERSECTION_THINNING.out.intersection)
+    ch_query = VCF_INTERSECTION_THINNING.out.intersection.map { meta, vcf ->
+        tuple(meta, vcf, [])
+    }
+    BCFTOOLS_QUERY(ch_query, [], [], [])
+    ch_ngsrelate = VCF_INTERSECTION_THINNING.out.intersection
+        .join(BCFTOOLS_QUERY.out.output)
+    ANGSD_NGSRELATE(ch_ngsrelate)
 
     //
     // Collate and save software versions
