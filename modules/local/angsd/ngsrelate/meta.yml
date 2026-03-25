@@ -6,8 +6,7 @@ keywords:
   - relatedness
   - inbreeding
   - population genetics
-notes:
-  A temporary sample ID file is generated internally from the VCF header using bcftools query -l and passed to ngsRelate via -z.
+notes: A temporary sample ID file is generated internally from the VCF header using bcftools query -l and passed to ngsRelate via -z.
 tools:
   - "ngsrelate":
       description: "NgsRelate estimates relatedness and inbreeding coefficients from low-coverage sequencing data."
