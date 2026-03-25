@@ -8,7 +8,7 @@ process ANGSD_NGSRELATE {
           'biocontainers/ngsrelate:2.0--hea85c65_0' }"
 
     input:
-    tuple val(meta), path(vcf)
+    tuple val(meta), path(vcf), path(sample_names)
 
     output:
     tuple val(meta), path("*.res"), emit: result
@@ -24,18 +24,17 @@ process ANGSD_NGSRELATE {
     def forbidden_args = ["-h", "-O", "-p", "-z"].intersect(args_list)
 
     if (forbidden_args) {
-      error "ANGSD_NGSRELATE: Reserved arguments found in task.ext.args (${forbidden_args.join(', ')}). The module sets -h, -O, and -p automatically."
+      error "ANGSD_NGSRELATE: Reserved arguments found in task.ext.args (${forbidden_args.join(', ')}). The module sets -h, -O, -p, and -z automatically."
     }
 
-    """
-    # Extract sample IDs from VCF
-    bcftools query -l ${vcf} > ${prefix}.samples.txt
+    def arg_sample_names = sample_names ? "-z ${sample_names}" : ""
 
+    """
     ngsRelate \\
       -p ${task.cpus} \\
       -h ${vcf} \\
       -O ${prefix}.res \\
-      -z ${prefix}.samples.txt \\
+      ${arg_sample_names} \\
       ${args}
     """
 
@@ -46,8 +45,10 @@ process ANGSD_NGSRELATE {
     def forbidden_args = ["-h", "-O", "-p", "-z"].intersect(args_list)
 
     if (forbidden_args) {
-      error "ANGSD_NGSRELATE: Reserved arguments found in task.ext.args (${forbidden_args.join(', ')}). The module sets -h, -O, and -p automatically."
+      error "ANGSD_NGSRELATE: Reserved arguments found in task.ext.args (${forbidden_args.join(', ')}). The module sets -h, -O, -p, and -z automatically."
     }
+
+    def arg_sample_names = sample_names ? "-z ${sample_names}" : ""
 
     """
     touch ${prefix}.res

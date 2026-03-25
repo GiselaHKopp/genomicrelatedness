@@ -30,7 +30,9 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = GUNZIP.out.gunzip
+                input[0] = GUNZIP.out.gunzip.map { meta, vcf ->
+                    [ meta, vcf, [] ]
+                }
                 """
             }
         }
@@ -70,7 +72,9 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = GUNZIP.out.gunzip
+                input[0] = GUNZIP.out.gunzip.map { meta, vcf ->
+                    [ meta, vcf, [] ]
+                }
                 """
             }
         }
