@@ -31,9 +31,6 @@ process ANGSD_NGSRELATE {
     # Extract sample IDs from VCF
     bcftools query -l ${vcf} > ${prefix}.samples.txt
 
-    # Count number of samples (optional but often useful)
-    NSAMPLES=\$(wc -l < ${prefix}.samples.txt)
-
     ngsRelate \\
       -p ${task.cpus} \\
       -h ${vcf} \\
