@@ -48,8 +48,6 @@ process ANGSD_NGSRELATE {
       error "ANGSD_NGSRELATE: Reserved arguments found in task.ext.args (${forbidden_args.join(', ')}). The module sets -h, -O, -p, and -z automatically."
     }
 
-    def arg_sample_names = sample_names ? "-z ${sample_names}" : ""
-
     """
     touch ${prefix}.res
     """

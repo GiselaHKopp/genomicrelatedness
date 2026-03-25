@@ -1,7 +1,7 @@
 {
-    "guinea-fowl - vcf.gz": {
+    "test-sample-names": {
         "content": [
-            "relatedness.res",
+            "test.res",
             [
                 [
                     "ANGSD_NGSRELATE",
@@ -10,15 +10,15 @@
                 ]
             ]
         ],
-        "timestamp": "2026-03-12T10:08:30.322165562",
+        "timestamp": "2026-03-25T15:15:20.4109181",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
-    "guinea-fowl - vcf.gz - stub": {
+    "test-default": {
         "content": [
-            "relatedness.res",
+            "test.res",
             [
                 [
                     "ANGSD_NGSRELATE",
@@ -27,9 +27,26 @@
                 ]
             ]
         ],
-        "timestamp": "2026-03-12T10:08:34.45323308",
+        "timestamp": "2026-03-25T15:14:55.425869779",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    },
+    "test - stub": {
+        "content": [
+            "test.res",
+            [
+                [
+                    "ANGSD_NGSRELATE",
+                    "ngsrelate",
+                    "2.0"
+                ]
+            ]
+        ],
+        "timestamp": "2026-03-25T15:15:38.734447429",
+        "meta": {
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     }
