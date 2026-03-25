@@ -1,11 +1,13 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: "angsd_ngsrelate"
-description: Estimate pairwise relatedness and inbreeding coefficients from VCF genotype information.
+description: Estimate pairwise relatedness and inbreeding coefficients from VCF genotype information with ngsRelate v2. Automatically extracts sample IDs from the input VCF header and provides them to ngsRelate via the -z option.
 keywords:
   - ngsrelate
   - relatedness
   - inbreeding
   - population genetics
+notes:
+  A temporary sample ID file is generated internally from the VCF header using bcftools query -l and passed to ngsRelate via -z.
 tools:
   - "ngsrelate":
       description: "NgsRelate estimates relatedness and inbreeding coefficients from low-coverage sequencing data."
