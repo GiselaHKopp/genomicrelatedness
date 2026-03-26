@@ -26,9 +26,9 @@ The pipeline will auto-detect whether a sample is single- or paired-end using th
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sample`   | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
 | `fastq_1`  | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2`  | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz"                                                              |
+| `fastq_2`  | Full path to FastQ file for Illumina short reads 2 if paired-end sequencing was performed. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz"                                                              |
 | `spring_1` | Full path to SPRING file for Illumina short reads 1. File can have the extension ".fq.gz.spring" or ".fastq.gz.spring".                                                                |
-| `spring_2` | Full path to SPRING file for Illumina short reads 2. File can have the extension ".fq.gz.spring" or ".fastq.gz.spring".                                                                |
+| `spring_2` | Full path to SPRING file for Illumina short reads 2 if paired-end sequencing was performed. File can have the extension ".fq.gz.spring" or ".fastq.gz.spring".                                                                |
 | `cram`     | Full path to CRAM file.                                                                                                                                                                |
 | `bam`      | Full path to BAM file.                                                                                                                                                                 |
 | `RGID`     | Unique run identifier following SAM/BAM file format specification, e.g. {FLOWCELL}.{LANE}.                                                                                             |
@@ -47,7 +47,7 @@ Sample3,./input_fastq/L17020-1_W1707_Sample3_R1_001.fastq.gz,,FC1_L17020,lib3,IL
 ```
 
 ```csv title="samplesheet.csv"
-sample,cram
+sample,cram,RGID,RGLB,RGPL,RGPU,RGSM
 Sample1,./input_cram/L17019-1_W1706_Sample1_R1_001.cram,FC1_L17019,lib1,ILLUMINA,FC1_L17019_Sample1a,Sample1a
 Sample2,./input_cram/L17020-1_W1707_Sample2_R1_001.cram,FC1_L17020,lib2,ILLUMINA,FC1_L17020_Sample2a,Sample2a
 ```
