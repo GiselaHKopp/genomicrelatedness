@@ -69,9 +69,9 @@ The pipeline consists of the following four main sections that perform the major
    - **Preprocessing of raw sequencing reads (`--preprocess`)**: This step performs all essential steps to provide aligned sequence reads and quality metrics.
      - _Input parsing & metadata setup_: Reads a CSV samplesheet describing the input FASTQ or SPRING files with raw sequencing reads and their read-group information.
 
-     - _Raw read quality control_: performs quality control, trimming, filtering and merging of paired reads with [`fastp`](https://github.com/OpenGene/fastp), generating trimmed and filtered paired reads (.merged.fastq.gz)
+     - _Raw read quality control_: performs quality control, trimming, filtering and merging of paired reads with [`fastp`](https://github.com/OpenGene/fastp), generating trimmed and filtered (paired) reads (.merged.fastq.gz)
 
-     - _Read mapping_: Aligns the paired reads to the reference genome with [`BWA-mem2 -mem`](https://bio-bwa.sourceforge.net/bwa.shtml), sorts reads with [`samtools -sort`](https://www.htslib.org/doc/samtools-sort.html), adds read group information with [`GATK4 -addorreplacereadgroups`](https://janis.readthedocs.io/en/latest/tools/bioinformatics/gatk4/gatk4createsequencedictionary.html).
+     - _Read mapping_: Aligns the preprocessed reads to the reference genome with [`BWA-mem2 -mem`](https://bio-bwa.sourceforge.net/bwa.shtml), sorts reads with [`samtools -sort`](https://www.htslib.org/doc/samtools-sort.html), adds read group information with [`GATK4 -addorreplacereadgroups`](https://janis.readthedocs.io/en/latest/tools/bioinformatics/gatk4/gatk4createsequencedictionary.html).
 
      - _Merge_ files stemming from the same sample with [`samtools -merge`](https://www.htslib.org/doc/samtools-merge.html).
 
@@ -127,11 +127,11 @@ sample-2,sample2_S1_L004_R1_001.fastq.gz,sample2_S1_L004_R2_001.fastq.gz,FC1_L00
 
 ```
 
-The sample sheet is provided as a comma-separated value (CSV) file, with one line corresponding to one paired-read set and eight defined columns.
+The sample sheet is provided as a comma-separated value (CSV) file, with one line corresponding to one read set and eight defined columns.
 
 1. The first column **sample** holds the individual name enabling cross-referencing to other datasets for downstream analyses (may refer to individual or sample depending on the unit of interest).
 
-2. Columns **fastq_1** and **fastq_2** hold the filepaths to the paired-end sequencing raw reads for forward and reverse read, respectively. Alternatively, the samplesheet can be filled with fastq files encoded in SPRING format (column headers **spring_1** and **spring_2**), or the preprocessing steps can be skipped entirely when BAM (column header **bam**) or CRAM files (column header **cram**) are provided.
+2. Columns **fastq_1** and **fastq_2** hold the filepaths to the sequencing raw reads for forward and reverse read, respectively. If sequencing was performed in single-end mode, leave the fastq_2 column empty. Alternatively, the samplesheet can be filled with fastq files encoded in SPRING format (column headers **spring_1** and **spring_2**), or the preprocessing steps can be skipped entirely when BAM (column header **bam**) or CRAM files (column header **cram**) are provided.
 3. The following five columns give more details on the production of the sequencing data based on [`SAM/BAM file format specification`]() (The SAM/BAM Format Specification Work...), required for the preprocessing section by the GATK4 (McKenna et al. 2010; Van der Auwera and O'Connor 2020; GATK 2024). **RGID** holds the unique run identifier, e.g. {FLOWCELL}.{LANE}
 4. **RGLB** holds the library identifier
 5. **RGPL** holds the sequencing technology or platform, e.g. ILLUMINA
