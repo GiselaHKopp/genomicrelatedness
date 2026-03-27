@@ -4,6 +4,15 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { BCFTOOLS_ISEC                                  } from '../../../modules/nf-core/bcftools/isec'
+include { BCFTOOLS_BGZIP as BCFTOOLS_BGZIP_ISEC          } from '../../../modules/nf-core/bcftools/bgzip/main'
+include { BCFTOOLS_BGZIP as BCFTOOLS_BGZIP_EXCLUDE       } from '../../../modules/nf-core/bcftools/bgzip/main'
+include { BCFTOOLS_BGZIP as BCFTOOLS_BGZIP_THIN          } from '../../../modules/nf-core/bcftools/bgzip/main'
+include { BCFTOOLS_INDEX as BCFTOOLS_INDEX_ISEC          } from '../../../modules/nf-core/bcftools/index/main'
+include { BCFTOOLS_INDEX as BCFTOOLS_INDEX_EXCLUDE       } from '../../../modules/nf-core/bcftools/index/main'
+include { BCFTOOLS_INDEX as BCFTOOLS_INDEX_THIN          } from '../../../modules/nf-core/bcftools/index/main'
+include { BCFTOOLS_STATS as BCFTOOLS_STATS_ISEC          } from '../../../modules/nf-core/bcftools/stats/main'
+include { BCFTOOLS_STATS as BCFTOOLS_STATS_EXCLUDE       } from '../../../modules/nf-core/bcftools/stats/main'
+include { BCFTOOLS_STATS as BCFTOOLS_STATS_THIN          } from '../../../modules/nf-core/bcftools/stats/main'
 include { MAKE_SCAFFOLD_BED as MAKE_SCAFFOLD_EXCLUDE_BED } from '../../../modules/local/make_scaffold_bed/'
 include { MAKE_SCAFFOLD_BED as MAKE_SCAFFOLD_INCLUDE_BED } from '../../../modules/local/make_scaffold_bed/'
 include { VCFTOOLS as VCFTOOLS_EXCLUDE                   } from '../../../modules/nf-core/vcftools/'
@@ -21,9 +30,11 @@ workflow VCF_INTERSECTION_THINNING {
     vcf_tool2 // channel: [ meta, vcf]
     tbi_tool2 // channel: [ meta, tbi]
     intervals // channel: [ meta, bed, number_of_intervals]
+    fasta     // channel: [ meta, fasta]
 
     main:
     versions = channel.empty()
+    multiqc_files = channel.empty()
 
     vcf_tool1_prepared = vcf_tool1
         .map { meta, vcf ->
@@ -73,6 +84,32 @@ workflow VCF_INTERSECTION_THINNING {
             passthrough: !need_scaffold_filter
         }
 
+    // bgzip + index the isec VCF (plain .vcf → .vcf.gz) for BCFTOOLS_STATS
+    ch_isec_vcf = intersection.filter
+        .mix(intersection.passthrough)
+        .map { meta, vcf -> tuple(meta + [id: meta.id + "_isec"], vcf) }
+
+    BCFTOOLS_BGZIP_ISEC(ch_isec_vcf)
+    versions = versions.mix(BCFTOOLS_BGZIP_ISEC.out.versions)
+
+    BCFTOOLS_INDEX_ISEC(BCFTOOLS_BGZIP_ISEC.out.output)
+    versions = versions.mix(BCFTOOLS_INDEX_ISEC.out.versions)
+
+    ch_isec_vcf_tbi = BCFTOOLS_BGZIP_ISEC.out.output
+        .join(BCFTOOLS_INDEX_ISEC.out.tbi)
+
+    // Run BCFTOOLS_STATS on isec output
+    BCFTOOLS_STATS_ISEC(
+        ch_isec_vcf_tbi,
+        [[id: 'no_regions'], []],
+        [[id: 'no_targets'], []],
+        [[id: 'no_samples'], []],
+        [[id: 'no_exons'],   []],
+        fasta
+    )
+    versions      = versions.mix(BCFTOOLS_STATS_ISEC.out.versions)
+    multiqc_files = multiqc_files.mix(BCFTOOLS_STATS_ISEC.out.stats.map { _meta, stats -> stats })
+
     def include_scaffolds = normalize_scaffold_param(params.include_scaffolds)
     def exclude_scaffolds = normalize_scaffold_param(params.exclude_scaffolds)
     include_ch = include_scaffolds ? channel.value(include_scaffolds) : channel.empty()
@@ -114,6 +151,28 @@ workflow VCF_INTERSECTION_THINNING {
     )
     versions = versions.mix(VCFTOOLS_EXCLUDE.out.versions)
 
+    // bgzip + index the scaffolds-EXCLUDE VCF for BCFTOOLS_STATS
+    BCFTOOLS_BGZIP_EXCLUDE(VCFTOOLS_EXCLUDE.out.vcf)
+    versions = versions.mix(BCFTOOLS_BGZIP_EXCLUDE.out.versions)
+
+    BCFTOOLS_INDEX_EXCLUDE(BCFTOOLS_BGZIP_EXCLUDE.out.output)
+    versions = versions.mix(BCFTOOLS_INDEX_EXCLUDE.out.versions)
+
+    ch_EXCLUDE_vcf_tbi = BCFTOOLS_BGZIP_EXCLUDE.out.output
+        .join(BCFTOOLS_INDEX_EXCLUDE.out.tbi)
+
+    // Run BCFTOOLS_STATS on scaffolds-EXCLUDE output
+    BCFTOOLS_STATS_EXCLUDE(
+        ch_EXCLUDE_vcf_tbi,
+        [[id: 'no_regions'], []],
+        [[id: 'no_targets'], []],
+        [[id: 'no_samples'], []],
+        [[id: 'no_exons'],   []],
+        fasta
+    )
+    versions      = versions.mix(BCFTOOLS_STATS_EXCLUDE.out.versions)
+    multiqc_files = multiqc_files.mix(BCFTOOLS_STATS_EXCLUDE.out.stats.map { _meta, stats -> stats })
+
     vcf_cleaned = VCFTOOLS_EXCLUDE.out.vcf
         .mix(intersection.passthrough)
 
@@ -128,6 +187,28 @@ workflow VCF_INTERSECTION_THINNING {
         []  // diff_variant_file: unused
     )
     versions = versions.mix(VCFTOOLS_THIN.out.versions)
+
+    // bgzip + index the THIN VCF for BCFTOOLS_STATS
+    BCFTOOLS_BGZIP_THIN(VCFTOOLS_THIN.out.vcf)
+    versions = versions.mix(BCFTOOLS_BGZIP_THIN.out.versions)
+
+    BCFTOOLS_INDEX_THIN(BCFTOOLS_BGZIP_THIN.out.output)
+    versions = versions.mix(BCFTOOLS_INDEX_THIN.out.versions)
+
+    ch_THIN_vcf_tbi = BCFTOOLS_BGZIP_THIN.out.output
+        .join(BCFTOOLS_INDEX_THIN.out.tbi)
+
+    // Run BCFTOOLS_STATS on THIN output
+    BCFTOOLS_STATS_THIN(
+        ch_THIN_vcf_tbi,
+        [[id: 'no_regions'], []],
+        [[id: 'no_targets'], []],
+        [[id: 'no_samples'], []],
+        [[id: 'no_exons'],   []],
+        fasta
+    )
+    versions      = versions.mix(BCFTOOLS_STATS_THIN.out.versions)
+    multiqc_files = multiqc_files.mix(BCFTOOLS_STATS_THIN.out.stats.map { _meta, stats -> stats })
 
     emit:
     intersection = VCFTOOLS_THIN.out.vcf
