@@ -6,6 +6,7 @@
 include { BCFTOOLS_CALL                      } from '../../../modules/local/bcftools/call/main'
 include { BCFTOOLS_CONCAT                    } from '../../../modules/nf-core/bcftools/concat/main'
 include { BCFTOOLS_MPILEUP                   } from '../../../modules/local/bcftools/mpileup/main'
+include { BCFTOOLS_STATS                     } from '../../../modules/nf-core/bcftools/stats/main'
 include { SAMTOOLS_CONVERT                   } from '../../../modules/nf-core/samtools/convert/main'
 
 include { COMBINE_CRAM_INTERVALS } from '../combine_cram_intervals'
@@ -111,6 +112,22 @@ workflow CALL_VARIANTS_BCFTOOLS {
 
     // Run Bcftools concat
     BCFTOOLS_CONCAT(ch_concat_input)
+
+    // Run Bcftools stats on the concatenated vcf
+    ch_concat_vcf_tbi = BCFTOOLS_CONCAT.out.vcf
+        .join(BCFTOOLS_CONCAT.out.tbi)
+
+    BCFTOOLS_STATS(
+        ch_concat_vcf_tbi,
+        [[id: 'no_regions'], []], // regions
+        [[id: 'no_targets'], []], // targets
+        [[id: 'no_samples'], []], // samples
+        [[id: 'no_exons'], []],   // exons
+        fasta                     // [ meta, fasta ] — enables per-base quality stats
+    )
+
+    multiqc_files = multiqc_files.mix(BCFTOOLS_STATS.out.stats.map { tuple -> tuple[1] })
+    versions      = versions.mix(BCFTOOLS_STATS.out.versions)
 
     emit:
     vcf = BCFTOOLS_CONCAT.out.vcf
